@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid Chase Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="message"></div>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+    <div id="controls">
+        <button class="control-btn" onclick="handleMove('ArrowLeft')">←</button>
+        <button class="control-btn" onclick="handleMove('ArrowUp')">↑</button>
+        <button class="control-btn" onclick="handleMove('ArrowRight')">→</button>
+        <button class="control-btn" onclick="handleMove('ArrowDown')">↓</button>
+        <button class="control-btn" id="resetBtn" onclick="resetGame()">Reset</button>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
