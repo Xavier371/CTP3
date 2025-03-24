@@ -1,7 +1,6 @@
 const GRID_SIZE = 6;
 const CELL_SIZE = 80;
 const POINT_RADIUS = 10;
-const MIN_SAFE_DISTANCE = 2; // Minimum safe distance from blue point
 
 let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
@@ -28,11 +27,10 @@ function getDistance(pos1, pos2) {
 }
 
 function initializePositions() {
-    // Generate random positions ensuring they're not too close
     do {
         bluePos = getRandomPosition();
         redPos = getRandomPosition();
-    } while (getDistance(bluePos, redPos) < MIN_SAFE_DISTANCE);
+    } while (getDistance(bluePos, redPos) < 2);
 }
 
 function initializeEdges() {
@@ -62,7 +60,7 @@ function initializeEdges() {
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw active edges only
+    // Draw active edges
     edges.forEach(edge => {
         if (edge.active) {
             ctx.beginPath();
@@ -74,16 +72,19 @@ function drawGame() {
         }
     });
 
-    // Draw points
-    ctx.beginPath();
-    ctx.arc(bluePos.x * CELL_SIZE, bluePos.y * CELL_SIZE, POINT_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = 'blue';
-    ctx.fill();
+    // Draw points with white border for visibility
+    const drawPoint = (pos, color) => {
+        ctx.beginPath();
+        ctx.arc(pos.x * CELL_SIZE, pos.y * CELL_SIZE, POINT_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    };
 
-    ctx.beginPath();
-    ctx.arc(redPos.x * CELL_SIZE, redPos.y * CELL_SIZE, POINT_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = 'red';
-    ctx.fill();
+    drawPoint(bluePos, 'blue');
+    drawPoint(redPos, 'red');
 }
 
 function removeRandomEdge() {
@@ -124,22 +125,26 @@ function getValidMoves(pos) {
 function moveRed() {
     const validMoves = getValidMoves(redPos);
     if (validMoves.length > 0) {
-        // Score each move based on future options and distance from blue
-        const scoredMoves = validMoves.map(move => {
-            const distanceFromBlue = getDistance(move, bluePos);
-            const futureOptions = getValidMoves(move).length;
-            
-            // Heavily penalize moves that get too close to blue
-            const distanceScore = distanceFromBlue < MIN_SAFE_DISTANCE ? -100 : distanceFromBlue * 2;
-            
-            // Prioritize moves with more future options
-            const score = futureOptions * 10 + distanceScore;
-            
-            return { move, score };
+        // First, filter out moves that decrease distance from blue
+        const currentDistance = getDistance(redPos, bluePos);
+        const saferMoves = validMoves.filter(move => {
+            const newDistance = getDistance(move, bluePos);
+            return newDistance >= currentDistance;
         });
 
-        // Sort by score (highest first) and take the best move
+        // If we have safe moves, use them; otherwise use all valid moves
+        const movesToConsider = saferMoves.length > 0 ? saferMoves : validMoves;
+
+        // Score moves based on number of future moves available
+        const scoredMoves = movesToConsider.map(move => {
+            const futureOptions = getValidMoves(move).length;
+            return { move, score: futureOptions };
+        });
+
+        // Sort by score (highest number of future moves first)
         scoredMoves.sort((a, b) => b.score - a.score);
+
+        // Take the move with the most future options
         redPos = scoredMoves[0].move;
     }
 }
