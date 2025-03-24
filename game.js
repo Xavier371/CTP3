@@ -117,22 +117,17 @@ function findShortestPath(start, end) {
 function removeRandomEdge() {
     const activeEdges = edges.filter(edge => edge.active);
     if (activeEdges.length > 0) {
-        // Try edges until we find one that doesn't disconnect the grid
-        for (let i = 0; i < 3; i++) { // Try up to 3 random edges
+        for (let i = 0; i < 3; i++) {
             const edgeIndex = Math.floor(Math.random() * activeEdges.length);
             const edge = activeEdges[edgeIndex];
             
-            // Temporarily deactivate edge
             edge.active = false;
             
-            // Check if path still exists
             const path = findShortestPath(bluePos, redPos);
-            
             if (path) {
-                return true; // Keep edge removed
-            } else {
-                edge.active = true; // Restore edge if it would disconnect grid
+                return true;
             }
+            edge.active = true;
         }
     }
     return true;
@@ -184,35 +179,46 @@ function moveRed() {
         const futureOptions = evaluatePosition(move);
         const immediateOptions = getValidMoves(move).length;
         
+        // Calculate current distance from blue for comparison
+        const currentPathToBlue = findShortestPath(bluePos, redPos);
+        const currentDistance = currentPathToBlue ? currentPathToBlue.length : Infinity;
+        
+        // Penalize moves that decrease distance from blue
+        const distancePenalty = distanceFromBlue < currentDistance ? -1000 : 0;
+        
         return {
             move,
-            score: distanceFromBlue * 10 + futureOptions * 5 + immediateOptions * 3
+            score: distanceFromBlue * 10 + futureOptions * 5 + 
+                   immediateOptions * 3 + distancePenalty
         };
     });
 
     // Sort by score (highest first)
     scoredMoves.sort((a, b) => b.score - a.score);
     
-    // Make the best move
-    redPos = scoredMoves[0].move;
+    // Always make a move if possible
+    if (scoredMoves.length > 0) {
+        redPos = scoredMoves[0].move;
+        removeRandomEdge();
+        return true;
+    }
     
-    // Remove an edge after red moves
-    removeRandomEdge();
-    
-    return true;
+    return false;
 }
 
 function checkGameOver() {
+    // Check if points are in the same location
     if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
         gameOver = true;
         document.getElementById('message').textContent = 'You Win!';
         return true;
     }
     
+    // Check if there's no path between points
     const path = findShortestPath(bluePos, redPos);
     if (!path) {
         gameOver = true;
-        document.getElementById('message').textContent = 'Game Over - No path exists!';
+        document.getElementById('message').textContent = 'Game Over - Points are separated!';
         return true;
     }
     
