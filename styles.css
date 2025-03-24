@@ -7,7 +7,6 @@ body {
     margin: 0;
     background-color: white;
     font-family: Arial, sans-serif;
-    padding: 20px;
 }
 
 h1 {
@@ -20,7 +19,6 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 20px;
 }
 
 canvas {
@@ -35,12 +33,21 @@ canvas {
     color: white;
     border-radius: 5px;
     cursor: pointer;
+    margin-top: 20px;
+    display: block;
+    position: relative;
+    z-index: 1;
+}
+
+.control-btn:hover {
+    background-color: #218838;
 }
 
 #message {
-    position: fixed;
-    top: 20px;
     font-size: 24px;
     color: #28a745;
     font-weight: bold;
+    height: 30px;
+    margin: 10px 0;
+    text-align: center;
 }
