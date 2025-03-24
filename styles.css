@@ -34,10 +34,11 @@ canvas {
     color: white;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 20px;
+    margin: 20px auto;
     position: relative;
     z-index: 100;
     display: block;
+    width: 120px;
 }
 
 .control-btn:hover {
