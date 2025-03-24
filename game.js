@@ -1,5 +1,5 @@
 const GRID_SIZE = 6;
-const CELL_SIZE = Math.min(window.innerWidth, window.innerHeight) * 0.7 / GRID_SIZE;
+const CELL_SIZE = 400 / GRID_SIZE; // Fixed size for the grid
 const POINT_RADIUS = CELL_SIZE / 6;
 
 let canvas = document.getElementById('gameCanvas');
@@ -13,6 +13,16 @@ let redPos = { x: GRID_SIZE - 1, y: 0 };
 let edges = [];
 let gameOver = false;
 
+// Check if user is on mobile
+function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// Show mobile controls if on mobile device
+if (isMobile()) {
+    document.getElementById('mobileControls').classList.remove('hidden');
+}
+
 function initializeEdges() {
     edges = [];
     // Horizontal edges
@@ -21,8 +31,7 @@ function initializeEdges() {
             edges.push({
                 x1: x, y1: y,
                 x2: x + 1, y2: y,
-                active: true,
-                opacity: 1
+                active: true
             });
         }
     }
@@ -32,8 +41,7 @@ function initializeEdges() {
             edges.push({
                 x1: x, y1: y,
                 x2: x, y2: y + 1,
-                active: true,
-                opacity: 1
+                active: true
             });
         }
     }
@@ -44,22 +52,21 @@ function drawGame() {
 
     // Draw edges
     edges.forEach(edge => {
-        if (edge.active || edge.opacity > 0) {
+        if (edge.active) {
             ctx.beginPath();
             ctx.moveTo(edge.x1 * CELL_SIZE, edge.y1 * CELL_SIZE);
             ctx.lineTo(edge.x2 * CELL_SIZE, edge.y2 * CELL_SIZE);
-            ctx.strokeStyle = `rgba(0, 0, 0, ${edge.opacity})`;
+            ctx.strokeStyle = '#666';
             ctx.stroke();
         }
     });
 
-    // Draw blue point
+    // Draw points
     ctx.beginPath();
     ctx.arc(bluePos.x * CELL_SIZE, bluePos.y * CELL_SIZE, POINT_RADIUS, 0, Math.PI * 2);
     ctx.fillStyle = 'blue';
     ctx.fill();
 
-    // Draw red point
     ctx.beginPath();
     ctx.arc(redPos.x * CELL_SIZE, redPos.y * CELL_SIZE, POINT_RADIUS, 0, Math.PI * 2);
     ctx.fillStyle = 'red';
@@ -71,18 +78,8 @@ function removeRandomEdge() {
     if (activeEdges.length > 0) {
         const edge = activeEdges[Math.floor(Math.random() * activeEdges.length)];
         edge.active = false;
-        fadeEdge(edge);
-    }
-}
-
-function fadeEdge(edge) {
-    const fadeInterval = setInterval(() => {
-        edge.opacity -= 0.1;
-        if (edge.opacity <= 0) {
-            clearInterval(fadeInterval);
-        }
         drawGame();
-    }, 50);
+    }
 }
 
 function canMove(from, to) {
