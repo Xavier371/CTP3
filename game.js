@@ -1,5 +1,5 @@
 const GRID_SIZE = 6;
-const CELL_SIZE = 400 / GRID_SIZE; // Fixed size for the grid
+const CELL_SIZE = 500 / GRID_SIZE; // Fixed size for the grid
 const POINT_RADIUS = CELL_SIZE / 6;
 
 let canvas = document.getElementById('gameCanvas');
