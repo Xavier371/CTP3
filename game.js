@@ -1,6 +1,6 @@
 const GRID_SIZE = 6;
-const CELL_SIZE = 500 / GRID_SIZE; // Fixed size for the grid
-const POINT_RADIUS = CELL_SIZE / 6;
+const CELL_SIZE = 500 / GRID_SIZE;
+const POINT_RADIUS = Math.min(CELL_SIZE / 4, 15); // Adjusted point size
 
 let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
@@ -12,16 +12,6 @@ let bluePos = { x: 0, y: GRID_SIZE - 1 };
 let redPos = { x: GRID_SIZE - 1, y: 0 };
 let edges = [];
 let gameOver = false;
-
-// Check if user is on mobile
-function isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}
-
-// Show mobile controls if on mobile device
-if (isMobile()) {
-    document.getElementById('mobileControls').classList.remove('hidden');
-}
 
 function initializeEdges() {
     edges = [];
@@ -61,14 +51,18 @@ function drawGame() {
         }
     });
 
-    // Draw points
+    // Draw points with adjusted positions to ensure they're fully visible
+    const offset = CELL_SIZE / 2;
+
+    // Draw blue point
     ctx.beginPath();
-    ctx.arc(bluePos.x * CELL_SIZE, bluePos.y * CELL_SIZE, POINT_RADIUS, 0, Math.PI * 2);
+    ctx.arc(bluePos.x * CELL_SIZE + offset, bluePos.y * CELL_SIZE + offset, POINT_RADIUS, 0, Math.PI * 2);
     ctx.fillStyle = 'blue';
     ctx.fill();
 
+    // Draw red point
     ctx.beginPath();
-    ctx.arc(redPos.x * CELL_SIZE, redPos.y * CELL_SIZE, POINT_RADIUS, 0, Math.PI * 2);
+    ctx.arc(redPos.x * CELL_SIZE + offset, redPos.y * CELL_SIZE + offset, POINT_RADIUS, 0, Math.PI * 2);
     ctx.fillStyle = 'red';
     ctx.fill();
 }
@@ -78,8 +72,8 @@ function removeRandomEdge() {
     if (activeEdges.length > 0) {
         const edge = activeEdges[Math.floor(Math.random() * activeEdges.length)];
         edge.active = false;
-        drawGame();
     }
+    drawGame();
 }
 
 function canMove(from, to) {
