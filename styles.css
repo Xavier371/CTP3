@@ -22,48 +22,17 @@ h1 {
 }
 
 canvas {
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
     border: 1px solid #ccc;
-}
-
-#mobileControls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-#mobileControls.hidden {
-    display: none;
-}
-
-.middle-row {
-    display: flex;
-    gap: 40px;
 }
 
 .control-btn {
     padding: 15px 25px;
     font-size: 24px;
     border: none;
-    background-color: #007bff;
+    background-color: #28a745;
     color: white;
     border-radius: 5px;
     cursor: pointer;
-    touch-action: manipulation;
-    min-width: 60px;
-}
-
-.control-btn:active {
-    background-color: #0056b3;
-}
-
-#resetBtn {
-    margin-top: 20px;
-    background-color: #28a745;
-    padding: 15px 30px;
 }
 
 #message {
@@ -72,10 +41,4 @@ canvas {
     font-size: 24px;
     color: #28a745;
     font-weight: bold;
-}
-
-@media (min-width: 768px) {
-    #mobileControls {
-        display: none !important;
-    }
 }
