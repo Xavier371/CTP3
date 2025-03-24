@@ -1,12 +1,14 @@
 const GRID_SIZE = 6;
 const CELL_SIZE = 500 / GRID_SIZE;
-const POINT_RADIUS = Math.min(CELL_SIZE / 4, 15); // Adjusted point size
+const POINT_RADIUS = Math.min(CELL_SIZE / 4, 15);
+const PADDING = CELL_SIZE; // Add padding around the grid
 
 let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
 
-canvas.width = CELL_SIZE * GRID_SIZE;
-canvas.height = CELL_SIZE * GRID_SIZE;
+// Set canvas size including padding
+canvas.width = CELL_SIZE * GRID_SIZE + (PADDING * 2);
+canvas.height = CELL_SIZE * GRID_SIZE + (PADDING * 2);
 
 let bluePos = { x: 0, y: GRID_SIZE - 1 };
 let redPos = { x: GRID_SIZE - 1, y: 0 };
@@ -40,33 +42,42 @@ function initializeEdges() {
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw edges
+    // Draw active edges
     edges.forEach(edge => {
         if (edge.active) {
             ctx.beginPath();
-            ctx.moveTo(edge.x1 * CELL_SIZE, edge.y1 * CELL_SIZE);
-            ctx.lineTo(edge.x2 * CELL_SIZE, edge.y2 * CELL_SIZE);
+            ctx.moveTo(edge.x1 * CELL_SIZE + PADDING, edge.y1 * CELL_SIZE + PADDING);
+            ctx.lineTo(edge.x2 * CELL_SIZE + PADDING, edge.y2 * CELL_SIZE + PADDING);
             ctx.strokeStyle = '#666';
             ctx.stroke();
         }
     });
 
-    // Draw points with adjusted positions to ensure they're fully visible
-    const offset = CELL_SIZE / 2;
-
-    // Draw blue point
+    // Draw points
     ctx.beginPath();
-    ctx.arc(bluePos.x * CELL_SIZE + offset, bluePos.y * CELL_SIZE + offset, POINT_RADIUS, 0, Math.PI * 2);
+    ctx.arc(
+        bluePos.x * CELL_SIZE + PADDING, 
+        bluePos.y * CELL_SIZE + PADDING, 
+        POINT_RADIUS, 
+        0, 
+        Math.PI * 2
+    );
     ctx.fillStyle = 'blue';
     ctx.fill();
 
-    // Draw red point
     ctx.beginPath();
-    ctx.arc(redPos.x * CELL_SIZE + offset, redPos.y * CELL_SIZE + offset, POINT_RADIUS, 0, Math.PI * 2);
+    ctx.arc(
+        redPos.x * CELL_SIZE + PADDING, 
+        redPos.y * CELL_SIZE + PADDING, 
+        POINT_RADIUS, 
+        0, 
+        Math.PI * 2
+    );
     ctx.fillStyle = 'red';
     ctx.fill();
 }
 
+// Rest of the functions remain the same
 function removeRandomEdge() {
     const activeEdges = edges.filter(edge => edge.active);
     if (activeEdges.length > 0) {
