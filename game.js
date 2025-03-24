@@ -1,19 +1,39 @@
 const GRID_SIZE = 6;
-const CELL_SIZE = 500 / GRID_SIZE;
-const POINT_RADIUS = Math.min(CELL_SIZE / 4, 15);
-const PADDING = CELL_SIZE; // Add padding around the grid
+const CELL_SIZE = 80;
+const POINT_RADIUS = 10;
+const MIN_SAFE_DISTANCE = 2; // Minimum safe distance from blue point
 
 let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
 
-// Set canvas size including padding
-canvas.width = CELL_SIZE * GRID_SIZE + (PADDING * 2);
-canvas.height = CELL_SIZE * GRID_SIZE + (PADDING * 2);
+canvas.width = CELL_SIZE * (GRID_SIZE - 1);
+canvas.height = CELL_SIZE * (GRID_SIZE - 1);
 
 let bluePos = { x: 0, y: GRID_SIZE - 1 };
 let redPos = { x: GRID_SIZE - 1, y: 0 };
 let edges = [];
 let gameOver = false;
+
+function getRandomPosition() {
+    return {
+        x: Math.floor(Math.random() * GRID_SIZE),
+        y: Math.floor(Math.random() * GRID_SIZE)
+    };
+}
+
+function getDistance(pos1, pos2) {
+    const dx = pos1.x - pos2.x;
+    const dy = pos1.y - pos2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function initializePositions() {
+    // Generate random positions ensuring they're not too close
+    do {
+        bluePos = getRandomPosition();
+        redPos = getRandomPosition();
+    } while (getDistance(bluePos, redPos) < MIN_SAFE_DISTANCE);
+}
 
 function initializeEdges() {
     edges = [];
@@ -42,42 +62,30 @@ function initializeEdges() {
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw active edges
+    // Draw active edges only
     edges.forEach(edge => {
         if (edge.active) {
             ctx.beginPath();
-            ctx.moveTo(edge.x1 * CELL_SIZE + PADDING, edge.y1 * CELL_SIZE + PADDING);
-            ctx.lineTo(edge.x2 * CELL_SIZE + PADDING, edge.y2 * CELL_SIZE + PADDING);
+            ctx.moveTo(edge.x1 * CELL_SIZE, edge.y1 * CELL_SIZE);
+            ctx.lineTo(edge.x2 * CELL_SIZE, edge.y2 * CELL_SIZE);
             ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
             ctx.stroke();
         }
     });
 
     // Draw points
     ctx.beginPath();
-    ctx.arc(
-        bluePos.x * CELL_SIZE + PADDING, 
-        bluePos.y * CELL_SIZE + PADDING, 
-        POINT_RADIUS, 
-        0, 
-        Math.PI * 2
-    );
+    ctx.arc(bluePos.x * CELL_SIZE, bluePos.y * CELL_SIZE, POINT_RADIUS, 0, Math.PI * 2);
     ctx.fillStyle = 'blue';
     ctx.fill();
 
     ctx.beginPath();
-    ctx.arc(
-        redPos.x * CELL_SIZE + PADDING, 
-        redPos.y * CELL_SIZE + PADDING, 
-        POINT_RADIUS, 
-        0, 
-        Math.PI * 2
-    );
+    ctx.arc(redPos.x * CELL_SIZE, redPos.y * CELL_SIZE, POINT_RADIUS, 0, Math.PI * 2);
     ctx.fillStyle = 'red';
     ctx.fill();
 }
 
-// Rest of the functions remain the same
 function removeRandomEdge() {
     const activeEdges = edges.filter(edge => edge.active);
     if (activeEdges.length > 0) {
@@ -116,19 +124,23 @@ function getValidMoves(pos) {
 function moveRed() {
     const validMoves = getValidMoves(redPos);
     if (validMoves.length > 0) {
-        // Calculate distances from blue point for each possible move
-        const movesWithDistances = validMoves.map(move => {
-            const dx = move.x - bluePos.x;
-            const dy = move.y - bluePos.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            return { move, distance };
+        // Score each move based on future options and distance from blue
+        const scoredMoves = validMoves.map(move => {
+            const distanceFromBlue = getDistance(move, bluePos);
+            const futureOptions = getValidMoves(move).length;
+            
+            // Heavily penalize moves that get too close to blue
+            const distanceScore = distanceFromBlue < MIN_SAFE_DISTANCE ? -100 : distanceFromBlue * 2;
+            
+            // Prioritize moves with more future options
+            const score = futureOptions * 10 + distanceScore;
+            
+            return { move, score };
         });
 
-        // Sort by distance (furthest first)
-        movesWithDistances.sort((a, b) => b.distance - a.distance);
-
-        // Take the move that maximizes distance from blue
-        redPos = movesWithDistances[0].move;
+        // Sort by score (highest first) and take the best move
+        scoredMoves.sort((a, b) => b.score - a.score);
+        redPos = scoredMoves[0].move;
     }
 }
 
@@ -164,11 +176,10 @@ function handleMove(key) {
 }
 
 function resetGame() {
-    bluePos = { x: 0, y: GRID_SIZE - 1 };
-    redPos = { x: GRID_SIZE - 1, y: 0 };
     gameOver = false;
     document.getElementById('message').textContent = '';
     initializeEdges();
+    initializePositions();
     drawGame();
 }
 
