@@ -3,10 +3,17 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
     background-color: #f0f0f0;
     font-family: Arial, sans-serif;
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
 #gameContainer {
@@ -17,25 +24,36 @@ body {
 canvas {
     background-color: white;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border: 1px solid #ccc;
 }
 
-#controls {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
+#mobileControls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
     margin-top: 20px;
-    max-width: 150px;
+}
+
+#mobileControls.hidden {
+    display: none;
+}
+
+.middle-row {
+    display: flex;
+    gap: 40px;
 }
 
 .control-btn {
-    padding: 15px;
-    font-size: 20px;
+    padding: 15px 25px;
+    font-size: 24px;
     border: none;
     background-color: #007bff;
     color: white;
     border-radius: 5px;
     cursor: pointer;
     touch-action: manipulation;
+    min-width: 60px;
 }
 
 .control-btn:active {
@@ -43,8 +61,9 @@ canvas {
 }
 
 #resetBtn {
-    grid-column: span 3;
+    margin-top: 20px;
     background-color: #28a745;
+    padding: 15px 30px;
 }
 
 #message {
@@ -56,7 +75,7 @@ canvas {
 }
 
 @media (min-width: 768px) {
-    #controls {
-        display: none;
+    #mobileControls {
+        display: none !important;
     }
 }
