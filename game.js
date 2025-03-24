@@ -88,11 +88,36 @@ function drawGame() {
         ctx.stroke();
     };
 
-    // Draw red point only if not in same position as blue
     if (!(bluePos.x === redPos.x && bluePos.y === redPos.y)) {
         drawPoint(redPos, 'red');
     }
     drawPoint(bluePos, 'blue');
+}
+
+function isEdgeBetweenPoints(edge, pos1, pos2) {
+    return (
+        (edge.x1 === pos1.x && edge.y1 === pos1.y && edge.x2 === pos2.x && edge.y2 === pos2.y) ||
+        (edge.x2 === pos1.x && edge.y2 === pos1.y && edge.x1 === pos2.x && edge.y1 === pos2.y)
+    );
+}
+
+function removeRandomEdge() {
+    const activeEdges = edges.filter(edge => {
+        if (!edge.active) return false;
+        // Don't remove edges between blue and red points if they're adjacent
+        if (getDistance(bluePos, redPos) === 1 && 
+            isEdgeBetweenPoints(edge, bluePos, redPos)) {
+            return false;
+        }
+        return true;
+    });
+
+    if (activeEdges.length > 0) {
+        const edge = activeEdges[Math.floor(Math.random() * activeEdges.length)];
+        edge.active = false;
+        return true;
+    }
+    return false;
 }
 
 function findShortestPath(start, end) {
@@ -115,16 +140,6 @@ function findShortestPath(start, end) {
     }
     
     return null;
-}
-
-function removeRandomEdge() {
-    const activeEdges = edges.filter(edge => edge.active);
-    if (activeEdges.length > 0) {
-        const edge = activeEdges[Math.floor(Math.random() * activeEdges.length)];
-        edge.active = false;
-        return true;
-    }
-    return false;
 }
 
 function canMove(from, to) {
@@ -188,7 +203,6 @@ function moveRed() {
     
     if (scoredMoves.length > 0) {
         redPos = scoredMoves[0].move;
-        removeRandomEdge();
         return true;
     }
     
