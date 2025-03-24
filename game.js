@@ -111,8 +111,19 @@ function getValidMoves(pos) {
 function moveRed() {
     const validMoves = getValidMoves(redPos);
     if (validMoves.length > 0) {
-        const newPos = validMoves[Math.floor(Math.random() * validMoves.length)];
-        redPos = newPos;
+        // Calculate distances from blue point for each possible move
+        const movesWithDistances = validMoves.map(move => {
+            const dx = move.x - bluePos.x;
+            const dy = move.y - bluePos.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return { move, distance };
+        });
+
+        // Sort by distance (furthest first)
+        movesWithDistances.sort((a, b) => b.distance - a.distance);
+
+        // Take the move that maximizes distance from blue
+        redPos = movesWithDistances[0].move;
     }
 }
 
