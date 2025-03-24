@@ -1,14 +1,13 @@
 const GRID_SIZE = 6;
 const CELL_SIZE = 80;
-const POINT_RADIUS = 8;  // Slightly smaller points
-const GRID_PADDING = CELL_SIZE / 2;  // Add padding to ensure points are visible
+const POINT_RADIUS = 8;
+const PADDING = CELL_SIZE;
 
 let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
 
-// Increase canvas size to account for padding
-canvas.width = CELL_SIZE * (GRID_SIZE - 1) + GRID_PADDING * 2;
-canvas.height = CELL_SIZE * (GRID_SIZE - 1) + GRID_PADDING * 2;
+canvas.width = CELL_SIZE * GRID_SIZE + (PADDING * 2);
+canvas.height = CELL_SIZE * GRID_SIZE + (PADDING * 2);
 
 let bluePos = { x: 0, y: GRID_SIZE - 1 };
 let redPos = { x: GRID_SIZE - 1, y: 0 };
@@ -17,7 +16,7 @@ let gameOver = false;
 
 function getRandomPosition() {
     return {
-        x: Math.floor(Math.random() * (GRID_SIZE - 2)) + 1, // Keep away from edges
+        x: Math.floor(Math.random() * (GRID_SIZE - 2)) + 1,
         y: Math.floor(Math.random() * (GRID_SIZE - 2)) + 1
     };
 }
@@ -26,13 +25,6 @@ function getDistance(pos1, pos2) {
     const dx = pos1.x - pos2.x;
     const dy = pos1.y - pos2.y;
     return Math.sqrt(dx * dx + dy * dy);
-}
-
-function getMoveDirection(from, to) {
-    return {
-        dx: Math.sign(to.x - from.x),
-        dy: Math.sign(to.y - from.y)
-    };
 }
 
 function initializePositions() {
@@ -69,24 +61,22 @@ function initializeEdges() {
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw active edges with padding offset
     edges.forEach(edge => {
         if (edge.active) {
             ctx.beginPath();
-            ctx.moveTo(edge.x1 * CELL_SIZE + GRID_PADDING, edge.y1 * CELL_SIZE + GRID_PADDING);
-            ctx.lineTo(edge.x2 * CELL_SIZE + GRID_PADDING, edge.y2 * CELL_SIZE + GRID_PADDING);
+            ctx.moveTo(edge.x1 * CELL_SIZE + PADDING, edge.y1 * CELL_SIZE + PADDING);
+            ctx.lineTo(edge.x2 * CELL_SIZE + PADDING, edge.y2 * CELL_SIZE + PADDING);
             ctx.strokeStyle = '#666';
             ctx.lineWidth = 1;
             ctx.stroke();
         }
     });
 
-    // Draw points with white border for visibility
     const drawPoint = (pos, color) => {
         ctx.beginPath();
         ctx.arc(
-            pos.x * CELL_SIZE + GRID_PADDING,
-            pos.y * CELL_SIZE + GRID_PADDING,
+            pos.x * CELL_SIZE + PADDING,
+            pos.y * CELL_SIZE + PADDING,
             POINT_RADIUS,
             0,
             Math.PI * 2
@@ -102,12 +92,50 @@ function drawGame() {
     drawPoint(redPos, 'red');
 }
 
+function findShortestPath(start, end) {
+    const visited = new Set();
+    const queue = [[start]];
+    
+    while (queue.length > 0) {
+        const path = queue.shift();
+        const current = path[path.length - 1];
+        const key = `${current.x},${current.y}`;
+        
+        if (current.x === end.x && current.y === end.y) return path;
+        if (visited.has(key)) continue;
+        
+        visited.add(key);
+        const moves = getValidMoves(current);
+        moves.forEach(move => {
+            queue.push([...path, move]);
+        });
+    }
+    
+    return null;
+}
+
 function removeRandomEdge() {
     const activeEdges = edges.filter(edge => edge.active);
     if (activeEdges.length > 0) {
-        const edge = activeEdges[Math.floor(Math.random() * activeEdges.length)];
-        edge.active = false;
+        // Try edges until we find one that doesn't disconnect the grid
+        for (let i = 0; i < 3; i++) { // Try up to 3 random edges
+            const edgeIndex = Math.floor(Math.random() * activeEdges.length);
+            const edge = activeEdges[edgeIndex];
+            
+            // Temporarily deactivate edge
+            edge.active = false;
+            
+            // Check if path still exists
+            const path = findShortestPath(bluePos, redPos);
+            
+            if (path) {
+                return true; // Keep edge removed
+            } else {
+                edge.active = true; // Restore edge if it would disconnect grid
+            }
+        }
     }
+    return true;
 }
 
 function canMove(from, to) {
@@ -136,29 +164,29 @@ function getValidMoves(pos) {
     return moves;
 }
 
+function evaluatePosition(pos, depth = 2) {
+    if (depth === 0) return getValidMoves(pos).length;
+    
+    const moves = getValidMoves(pos);
+    if (moves.length === 0) return 0;
+    
+    return Math.max(...moves.map(move => evaluatePosition(move, depth - 1))) + moves.length;
+}
+
 function moveRed() {
     const validMoves = getValidMoves(redPos);
     if (validMoves.length === 0) return false;
 
-    // Get the direction blue is coming from
-    const blueDirection = getMoveDirection(redPos, bluePos);
-
-    // Filter moves that don't go towards blue
-    const safeMoves = validMoves.filter(move => {
-        const moveDir = getMoveDirection(redPos, move);
-        return moveDir.dx !== blueDirection.dx || moveDir.dy !== blueDirection.dy;
-    });
-
-    // If no safe moves, use all valid moves
-    const movesToConsider = safeMoves.length > 0 ? safeMoves : validMoves;
-
-    // Score moves based on number of future moves and distance from blue
-    const scoredMoves = movesToConsider.map(move => {
-        const futureOptions = getValidMoves(move).length;
-        const distanceFromBlue = getDistance(move, bluePos);
+    // Score each possible move
+    const scoredMoves = validMoves.map(move => {
+        const pathToBlue = findShortestPath(bluePos, move);
+        const distanceFromBlue = pathToBlue ? pathToBlue.length : Infinity;
+        const futureOptions = evaluatePosition(move);
+        const immediateOptions = getValidMoves(move).length;
+        
         return {
             move,
-            score: futureOptions * 10 + distanceFromBlue
+            score: distanceFromBlue * 10 + futureOptions * 5 + immediateOptions * 3
         };
     });
 
@@ -167,6 +195,10 @@ function moveRed() {
     
     // Make the best move
     redPos = scoredMoves[0].move;
+    
+    // Remove an edge after red moves
+    removeRandomEdge();
+    
     return true;
 }
 
@@ -176,6 +208,14 @@ function checkGameOver() {
         document.getElementById('message').textContent = 'You Win!';
         return true;
     }
+    
+    const path = findShortestPath(bluePos, redPos);
+    if (!path) {
+        gameOver = true;
+        document.getElementById('message').textContent = 'Game Over - No path exists!';
+        return true;
+    }
+    
     return false;
 }
 
@@ -199,6 +239,7 @@ function handleMove(key) {
     if (canMove(oldPos, bluePos)) {
         if (checkGameOver()) return;
         removeRandomEdge();
+        if (checkGameOver()) return;
     } else {
         bluePos = oldPos;
     }
