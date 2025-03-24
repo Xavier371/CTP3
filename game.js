@@ -88,8 +88,11 @@ function drawGame() {
         ctx.stroke();
     };
 
+    // Draw red point only if not in same position as blue
+    if (!(bluePos.x === redPos.x && bluePos.y === redPos.y)) {
+        drawPoint(redPos, 'red');
+    }
     drawPoint(bluePos, 'blue');
-    drawPoint(redPos, 'red');
 }
 
 function findShortestPath(start, end) {
@@ -117,20 +120,11 @@ function findShortestPath(start, end) {
 function removeRandomEdge() {
     const activeEdges = edges.filter(edge => edge.active);
     if (activeEdges.length > 0) {
-        for (let i = 0; i < 3; i++) {
-            const edgeIndex = Math.floor(Math.random() * activeEdges.length);
-            const edge = activeEdges[edgeIndex];
-            
-            edge.active = false;
-            
-            const path = findShortestPath(bluePos, redPos);
-            if (path) {
-                return true;
-            }
-            edge.active = true;
-        }
+        const edge = activeEdges[Math.floor(Math.random() * activeEdges.length)];
+        edge.active = false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 function canMove(from, to) {
@@ -172,18 +166,15 @@ function moveRed() {
     const validMoves = getValidMoves(redPos);
     if (validMoves.length === 0) return false;
 
-    // Score each possible move
     const scoredMoves = validMoves.map(move => {
         const pathToBlue = findShortestPath(bluePos, move);
         const distanceFromBlue = pathToBlue ? pathToBlue.length : Infinity;
         const futureOptions = evaluatePosition(move);
         const immediateOptions = getValidMoves(move).length;
         
-        // Calculate current distance from blue for comparison
         const currentPathToBlue = findShortestPath(bluePos, redPos);
         const currentDistance = currentPathToBlue ? currentPathToBlue.length : Infinity;
         
-        // Penalize moves that decrease distance from blue
         const distancePenalty = distanceFromBlue < currentDistance ? -1000 : 0;
         
         return {
@@ -193,10 +184,8 @@ function moveRed() {
         };
     });
 
-    // Sort by score (highest first)
     scoredMoves.sort((a, b) => b.score - a.score);
     
-    // Always make a move if possible
     if (scoredMoves.length > 0) {
         redPos = scoredMoves[0].move;
         removeRandomEdge();
@@ -207,14 +196,12 @@ function moveRed() {
 }
 
 function checkGameOver() {
-    // Check if points are in the same location
     if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
         gameOver = true;
         document.getElementById('message').textContent = 'You Win!';
         return true;
     }
     
-    // Check if there's no path between points
     const path = findShortestPath(bluePos, redPos);
     if (!path) {
         gameOver = true;
@@ -228,12 +215,10 @@ function checkGameOver() {
 function handleMove(key) {
     if (gameOver) return;
 
-    // Move red first
     if (moveRed()) {
         if (checkGameOver()) return;
     }
 
-    // Then move blue
     const oldPos = { ...bluePos };
     switch (key) {
         case 'ArrowLeft': if (bluePos.x > 0) bluePos.x--; break;
