@@ -215,10 +215,6 @@ function checkGameOver() {
 function handleMove(key) {
     if (gameOver) return;
 
-    if (moveRed()) {
-        if (checkGameOver()) return;
-    }
-
     const oldPos = { ...bluePos };
     switch (key) {
         case 'ArrowLeft': if (bluePos.x > 0) bluePos.x--; break;
@@ -228,9 +224,27 @@ function handleMove(key) {
     }
 
     if (canMove(oldPos, bluePos)) {
-        if (checkGameOver()) return;
+        // First check if player caught the red point
+        if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
+            checkGameOver();
+            drawGame();
+            return;
+        }
+
+        // Remove edge and redraw
         removeRandomEdge();
-        if (checkGameOver()) return;
+        drawGame();
+
+        // Move red point
+        if (moveRed()) {
+            drawGame();
+        }
+
+        // Check for game over after all moves are complete
+        if (checkGameOver()) {
+            drawGame();
+            return;
+        }
     } else {
         bluePos = oldPos;
     }
