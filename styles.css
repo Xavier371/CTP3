@@ -17,12 +17,14 @@ h1 {
 }
 
 #gameContainer {
-    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin: 20px;
 }
 
 canvas {
-    border: 1px solid #ccc;
+    background-color: white;
 }
 
 .control-btn {
