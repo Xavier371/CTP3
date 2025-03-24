@@ -1,12 +1,14 @@
 const GRID_SIZE = 6;
 const CELL_SIZE = 80;
-const POINT_RADIUS = 10;
+const POINT_RADIUS = 8;  // Slightly smaller points
+const GRID_PADDING = CELL_SIZE / 2;  // Add padding to ensure points are visible
 
 let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
 
-canvas.width = CELL_SIZE * (GRID_SIZE - 1);
-canvas.height = CELL_SIZE * (GRID_SIZE - 1);
+// Increase canvas size to account for padding
+canvas.width = CELL_SIZE * (GRID_SIZE - 1) + GRID_PADDING * 2;
+canvas.height = CELL_SIZE * (GRID_SIZE - 1) + GRID_PADDING * 2;
 
 let bluePos = { x: 0, y: GRID_SIZE - 1 };
 let redPos = { x: GRID_SIZE - 1, y: 0 };
@@ -15,8 +17,8 @@ let gameOver = false;
 
 function getRandomPosition() {
     return {
-        x: Math.floor(Math.random() * GRID_SIZE),
-        y: Math.floor(Math.random() * GRID_SIZE)
+        x: Math.floor(Math.random() * (GRID_SIZE - 2)) + 1, // Keep away from edges
+        y: Math.floor(Math.random() * (GRID_SIZE - 2)) + 1
     };
 }
 
@@ -26,11 +28,18 @@ function getDistance(pos1, pos2) {
     return Math.sqrt(dx * dx + dy * dy);
 }
 
+function getMoveDirection(from, to) {
+    return {
+        dx: Math.sign(to.x - from.x),
+        dy: Math.sign(to.y - from.y)
+    };
+}
+
 function initializePositions() {
     do {
         bluePos = getRandomPosition();
         redPos = getRandomPosition();
-    } while (getDistance(bluePos, redPos) < 2);
+    } while (getDistance(bluePos, redPos) < 3);
 }
 
 function initializeEdges() {
@@ -60,12 +69,12 @@ function initializeEdges() {
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw active edges
+    // Draw active edges with padding offset
     edges.forEach(edge => {
         if (edge.active) {
             ctx.beginPath();
-            ctx.moveTo(edge.x1 * CELL_SIZE, edge.y1 * CELL_SIZE);
-            ctx.lineTo(edge.x2 * CELL_SIZE, edge.y2 * CELL_SIZE);
+            ctx.moveTo(edge.x1 * CELL_SIZE + GRID_PADDING, edge.y1 * CELL_SIZE + GRID_PADDING);
+            ctx.lineTo(edge.x2 * CELL_SIZE + GRID_PADDING, edge.y2 * CELL_SIZE + GRID_PADDING);
             ctx.strokeStyle = '#666';
             ctx.lineWidth = 1;
             ctx.stroke();
@@ -75,7 +84,13 @@ function drawGame() {
     // Draw points with white border for visibility
     const drawPoint = (pos, color) => {
         ctx.beginPath();
-        ctx.arc(pos.x * CELL_SIZE, pos.y * CELL_SIZE, POINT_RADIUS, 0, Math.PI * 2);
+        ctx.arc(
+            pos.x * CELL_SIZE + GRID_PADDING,
+            pos.y * CELL_SIZE + GRID_PADDING,
+            POINT_RADIUS,
+            0,
+            Math.PI * 2
+        );
         ctx.fillStyle = color;
         ctx.fill();
         ctx.strokeStyle = 'white';
@@ -93,7 +108,6 @@ function removeRandomEdge() {
         const edge = activeEdges[Math.floor(Math.random() * activeEdges.length)];
         edge.active = false;
     }
-    drawGame();
 }
 
 function canMove(from, to) {
@@ -124,41 +138,56 @@ function getValidMoves(pos) {
 
 function moveRed() {
     const validMoves = getValidMoves(redPos);
-    if (validMoves.length > 0) {
-        // First, filter out moves that decrease distance from blue
-        const currentDistance = getDistance(redPos, bluePos);
-        const saferMoves = validMoves.filter(move => {
-            const newDistance = getDistance(move, bluePos);
-            return newDistance >= currentDistance;
-        });
+    if (validMoves.length === 0) return false;
 
-        // If we have safe moves, use them; otherwise use all valid moves
-        const movesToConsider = saferMoves.length > 0 ? saferMoves : validMoves;
+    // Get the direction blue is coming from
+    const blueDirection = getMoveDirection(redPos, bluePos);
 
-        // Score moves based on number of future moves available
-        const scoredMoves = movesToConsider.map(move => {
-            const futureOptions = getValidMoves(move).length;
-            return { move, score: futureOptions };
-        });
+    // Filter moves that don't go towards blue
+    const safeMoves = validMoves.filter(move => {
+        const moveDir = getMoveDirection(redPos, move);
+        return moveDir.dx !== blueDirection.dx || moveDir.dy !== blueDirection.dy;
+    });
 
-        // Sort by score (highest number of future moves first)
-        scoredMoves.sort((a, b) => b.score - a.score);
+    // If no safe moves, use all valid moves
+    const movesToConsider = safeMoves.length > 0 ? safeMoves : validMoves;
 
-        // Take the move with the most future options
-        redPos = scoredMoves[0].move;
-    }
+    // Score moves based on number of future moves and distance from blue
+    const scoredMoves = movesToConsider.map(move => {
+        const futureOptions = getValidMoves(move).length;
+        const distanceFromBlue = getDistance(move, bluePos);
+        return {
+            move,
+            score: futureOptions * 10 + distanceFromBlue
+        };
+    });
+
+    // Sort by score (highest first)
+    scoredMoves.sort((a, b) => b.score - a.score);
+    
+    // Make the best move
+    redPos = scoredMoves[0].move;
+    return true;
 }
 
-function checkWin() {
+function checkGameOver() {
     if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
         gameOver = true;
         document.getElementById('message').textContent = 'You Win!';
+        return true;
     }
+    return false;
 }
 
 function handleMove(key) {
     if (gameOver) return;
 
+    // Move red first
+    if (moveRed()) {
+        if (checkGameOver()) return;
+    }
+
+    // Then move blue
     const oldPos = { ...bluePos };
     switch (key) {
         case 'ArrowLeft': if (bluePos.x > 0) bluePos.x--; break;
@@ -168,15 +197,12 @@ function handleMove(key) {
     }
 
     if (canMove(oldPos, bluePos)) {
+        if (checkGameOver()) return;
         removeRandomEdge();
-        checkWin();
-        if (!gameOver) {
-            moveRed();
-            checkWin();
-        }
     } else {
         bluePos = oldPos;
     }
+    
     drawGame();
 }
 
