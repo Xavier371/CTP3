@@ -33,24 +33,42 @@ canvas {
     background-color: white;
 }
 
-#resetBtn {
+.button-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+#resetBtn, #modeBtn {
     padding: 15px 25px;
     font-size: 24px;
     border: none;
-    background-color: #28a745;
-    color: white;
     border-radius: 5px;
     cursor: pointer;
-    width: 120px;
     transition: background-color 0.3s ease;
-    margin-top: 10px;
+}
+
+#resetBtn {
+    background-color: #28a745;
+    color: white;
+    width: 120px;
+}
+
+#modeBtn {
+    background-color: #007bff;
+    color: white;
+    width: 180px;
 }
 
 #resetBtn:hover {
     background-color: #218838;
 }
 
-#resetBtn:active {
+#modeBtn:hover {
+    background-color: #0056b3;
+}
+
+#resetBtn:active, #modeBtn:active {
     transform: scale(0.98);
 }
 
