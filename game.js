@@ -1,7 +1,6 @@
 const GRID_SIZE = 6;
 const CELL_SIZE = 80;
 const POINT_RADIUS = 8;
-const POINT_OFFSET = CELL_SIZE / 2;  // For centering points
 
 let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
@@ -75,8 +74,8 @@ function drawGame() {
     const drawPoint = (pos, color) => {
         ctx.beginPath();
         ctx.arc(
-            pos.x * CELL_SIZE + POINT_OFFSET,
-            pos.y * CELL_SIZE + POINT_OFFSET,
+            pos.x * CELL_SIZE,
+            pos.y * CELL_SIZE,
             POINT_RADIUS,
             0,
             Math.PI * 2
@@ -181,48 +180,36 @@ function moveRed() {
     const validMoves = getValidMoves(redPos);
     if (validMoves.length === 0) return false;
 
-    const isAdjacentToBlue = (pos) => {
-        return Math.abs(pos.x - bluePos.x) + Math.abs(pos.y - bluePos.y) === 1;
-    };
-
-    let availableMoves = validMoves;
-    const saferMoves = validMoves.filter(move => !isAdjacentToBlue(move));
+    // Check if blue is adjacent and about to capture
+    const isBlueAdjacent = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
     
-    if (saferMoves.length > 0) {
-        availableMoves = saferMoves;
+    // If blue is adjacent, must move if possible
+    if (isBlueAdjacent && validMoves.length > 0) {
+        const escapeMoves = validMoves.filter(move => 
+            Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y) > 1
+        );
+        if (escapeMoves.length > 0) {
+            redPos = escapeMoves[Math.floor(Math.random() * escapeMoves.length)];
+            return true;
+        }
     }
 
-    const scoredMoves = availableMoves.map(move => {
+    const scoredMoves = validMoves.map(move => {
         const pathToBlue = findShortestPath(bluePos, move);
         const distanceFromBlue = pathToBlue ? pathToBlue.length : Infinity;
         const futureOptions = evaluatePosition(move);
         const immediateOptions = getValidMoves(move).length;
         
-        const currentPathToBlue = findShortestPath(bluePos, redPos);
-        const currentDistance = currentPathToBlue ? currentPathToBlue.length : Infinity;
-        
-        const adjacencyPenalty = isAdjacentToBlue(move) ? -2000 : 0;
-        const distancePenalty = distanceFromBlue < currentDistance ? -1000 : 0;
-        const distanceBonus = distanceFromBlue >= currentDistance ? 500 : 0;
-        
         return {
             move,
-            score: distanceFromBlue * 10 + 
-                   futureOptions * 5 + 
-                   immediateOptions * 3 + 
-                   distancePenalty + 
-                   adjacencyPenalty +
-                   distanceBonus
+            score: distanceFromBlue * 10 + futureOptions * 5 + immediateOptions * 3
         };
     });
 
     scoredMoves.sort((a, b) => b.score - a.score);
     
     if (scoredMoves.length > 0) {
-        // Choose randomly among top moves to add unpredictability
-        const topMoves = scoredMoves.filter(m => 
-            m.score >= scoredMoves[0].score - 10);
-        redPos = topMoves[Math.floor(Math.random() * topMoves.length)].move;
+        redPos = scoredMoves[0].move;
         return true;
     }
     
@@ -258,26 +245,22 @@ function handleMove(key) {
     }
 
     if (canMove(oldPos, bluePos)) {
+        // First check if player caught the red point
         if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
             checkGameOver();
             drawGame();
             return;
         }
 
+        // Remove edge and redraw
         removeRandomEdge();
         drawGame();
 
-        const redMoved = moveRed();
-        if (redMoved) {
-            drawGame();
-        } else {
-            const validMoves = getValidMoves(redPos);
-            if (validMoves.length > 0) {
-                redPos = validMoves[Math.floor(Math.random() * validMoves.length)];
-                drawGame();
-            }
-        }
+        // Move red point
+        moveRed();
+        drawGame();
 
+        // Check for game over after all moves are complete
         if (checkGameOver()) {
             drawGame();
             return;
