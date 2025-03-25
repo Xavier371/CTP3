@@ -406,7 +406,7 @@ function resetGame() {
         y: GRID_SIZE - 1
     };
     
-    // Reset edges
+    // Reset all edges to true (visible)
     for (let i = 0; i < GRID_SIZE; i++) {
         edges[i] = [];
         for (let j = 0; j < GRID_SIZE; j++) {
@@ -419,15 +419,29 @@ function resetGame() {
     
     // If in offense mode, remove 2 random edges at start
     if (gameMode === 'offense') {
-        removeRandomEdge();
-        removeRandomEdge();
+        for (let i = 0; i < 2; i++) {
+            const availableEdges = [];
+            for (let x = 0; x < GRID_SIZE; x++) {
+                for (let y = 0; y < GRID_SIZE; y++) {
+                    if (x < GRID_SIZE - 1 && edges[x][y].right) {
+                        availableEdges.push({x: x, y: y, type: 'right'});
+                    }
+                    if (y < GRID_SIZE - 1 && edges[x][y].bottom) {
+                        availableEdges.push({x: x, y: y, type: 'bottom'});
+                    }
+                }
+            }
+            if (availableEdges.length > 0) {
+                const edge = availableEdges[Math.floor(Math.random() * availableEdges.length)];
+                edges[edge.x][edge.y][edge.type] = false;
+            }
+        }
     }
     
     gameOver = false;
     lastCapturePos = null;
     drawGame();
 }
-
 function toggleMode() {
     gameMode = gameMode === 'offense' ? 'defense' : 'offense';
     updateGameTitle();
