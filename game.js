@@ -13,6 +13,8 @@ let bluePos = { x: 0, y: GRID_SIZE - 1 };
 let redPos = { x: GRID_SIZE - 1, y: 0 };
 let edges = [];
 let gameOver = false;
+let isTwoPlayer = false;
+let redTurn = false;
 
 function getRandomPosition() {
     return {
@@ -104,7 +106,6 @@ function isEdgeBetweenPoints(edge, pos1, pos2) {
 function removeRandomEdge() {
     const activeEdges = edges.filter(edge => {
         if (!edge.active) return false;
-        // Don't remove edges between blue and red points if they're adjacent
         if (getDistance(bluePos, redPos) === 1 && 
             isEdgeBetweenPoints(edge, bluePos, redPos)) {
             return false;
@@ -181,10 +182,8 @@ function moveRed() {
     const validMoves = getValidMoves(redPos);
     if (validMoves.length === 0) return false;
 
-    // Check if blue is adjacent
     const isAdjacentToBlue = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
 
-    // If blue is adjacent, MUST move if possible
     if (isAdjacentToBlue) {
         const escapeMoves = validMoves.filter(move => 
             Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y) > 1
@@ -219,14 +218,14 @@ function moveRed() {
 function checkGameOver() {
     if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
         gameOver = true;
-        document.getElementById('message').textContent = 'You Win!';
+        document.getElementById('message').textContent = 'Blue Wins!';
         return true;
     }
     
     const path = findShortestPath(bluePos, redPos);
     if (!path) {
         gameOver = true;
-        document.getElementById('message').textContent = 'Game Over - Points are separated!';
+        document.getElementById('message').textContent = 'Red Wins - Points are separated!';
         return true;
     }
     
@@ -236,56 +235,96 @@ function checkGameOver() {
 function handleMove(key) {
     if (gameOver) return;
 
-    const oldPos = { ...bluePos };
-    switch (key) {
-        case 'ArrowLeft': if (bluePos.x > 0) bluePos.x--; break;
-        case 'ArrowRight': if (bluePos.x < GRID_SIZE - 1) bluePos.x++; break;
-        case 'ArrowUp': if (bluePos.y > 0) bluePos.y--; break;
-        case 'ArrowDown': if (bluePos.y < GRID_SIZE - 1) bluePos.y++; break;
-    }
-
-    if (canMove(oldPos, bluePos)) {
-        if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
-            checkGameOver();
-            drawGame();
-            return;
+    if (!redTurn) {
+        const oldPos = { ...bluePos };
+        switch (key) {
+            case 'ArrowLeft': if (bluePos.x > 0) bluePos.x--; break;
+            case 'ArrowRight': if (bluePos.x < GRID_SIZE - 1) bluePos.x++; break;
+            case 'ArrowUp': if (bluePos.y > 0) bluePos.y--; break;
+            case 'ArrowDown': if (bluePos.y < GRID_SIZE - 1) bluePos.y++; break;
         }
 
-        removeRandomEdge();
-        drawGame();
-
-        // Force red to move if it has valid moves and is adjacent to blue
-        const validMoves = getValidMoves(redPos);
-        const isAdjacentToBlue = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
-        
-        if (validMoves.length > 0 && isAdjacentToBlue) {
-            const escapeMoves = validMoves.filter(move => 
-                Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y) > 1
-            );
-            if (escapeMoves.length > 0) {
-                redPos = escapeMoves[Math.floor(Math.random() * escapeMoves.length)];
-            } else {
-                moveRed();
+        if (canMove(oldPos, bluePos)) {
+            if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
+                checkGameOver();
+                drawGame();
+                return;
             }
+
+            removeRandomEdge();
             drawGame();
-        } else if (validMoves.length > 0) {
-            moveRed();
-            drawGame();
+
+            if (isTwoPlayer) {
+                redTurn = true;
+            } else {
+                const validMoves = getValidMoves(redPos);
+                const isAdjacentToBlue = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
+                
+                if (validMoves.length > 0 && isAdjacentToBlue) {
+                    const escapeMoves = validMoves.filter(move => 
+                        Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y) > 1
+                    );
+                    if (escapeMoves.length > 0) {
+                        redPos = escapeMoves[Math.floor(Math.random() * escapeMoves.length)];
+                    } else {
+                        moveRed();
+                    }
+                    drawGame();
+                } else if (validMoves.length > 0) {
+                    moveRed();
+                    drawGame();
+                }
+            }
+
+            if (checkGameOver()) {
+                drawGame();
+                return;
+            }
+        } else {
+            bluePos = oldPos;
+        }
+    } else if (isTwoPlayer) {
+        const oldPos = { ...redPos };
+        switch (key) {
+            case 'a': if (redPos.x > 0) redPos.x--; break;
+            case 'd': if (redPos.x < GRID_SIZE - 1) redPos.x++; break;
+            case 'w': if (redPos.y > 0) redPos.y--; break;
+            case 's': if (redPos.y < GRID_SIZE - 1) redPos.y++; break;
         }
 
-        if (checkGameOver()) {
+        if (canMove(oldPos, redPos)) {
+            if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
+                checkGameOver();
+                drawGame();
+                return;
+            }
+
+            removeRandomEdge();
             drawGame();
-            return;
+            redTurn = false;
+
+            if (checkGameOver()) {
+                drawGame();
+                return;
+            }
+        } else {
+            redPos = oldPos;
         }
-    } else {
-        bluePos = oldPos;
     }
     
     drawGame();
 }
 
+function toggleMode() {
+    isTwoPlayer = !isTwoPlayer;
+    const modeBtn = document.getElementById('modeBtn');
+    modeBtn.textContent = isTwoPlayer ? 'Two Player' : 'One Player';
+    resetGame();
+}
+
 function resetGame() {
     gameOver = false;
+    redTurn = false;
     document.getElementById('message').textContent = '';
     initializeEdges();
     initializePositions();
@@ -295,7 +334,14 @@ function resetGame() {
 document.addEventListener('keydown', (e) => {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
-        handleMove(e.key);
+        if (!redTurn) {
+            handleMove(e.key);
+        }
+    } else if (isTwoPlayer && ['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+        if (redTurn) {
+            handleMove(e.key.toLowerCase());
+        }
     }
 });
 
