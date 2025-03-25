@@ -1,42 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grid Chase Game</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Catch the Point</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <h1>Try to catch the red point!</h1>
-    <div id="message"></div>
-    <div id="gameContainer">
+    <div class="container">
+        <h1>Catch the Point</h1>
+        <div id="gameTitle" class="game-title">Try to catch the red point!</div>
         <canvas id="gameCanvas"></canvas>
-        <div class="button-container">
-            <button id="resetBtn" onclick="resetGame()">Reset</button>
-            <button id="modeBtn" onclick="toggleMode()">Offense</button>
-            <button id="instructionsBtn" onclick="showInstructions()">Instructions</button>
+        <div class="controls">
+            <button onclick="resetGame()" class="game-button">Reset Game</button>
+            <button onclick="toggleMode()" id="modeBtn" class="game-button">Offense</button>
+            <button onclick="showInstructions()" class="game-button">How to Play</button>
         </div>
+        <div id="message"></div>
     </div>
+
     <div id="instructionsModal" class="modal">
         <div class="modal-content">
-            <h2>Instructions</h2>
+            <h2>How to Play</h2>
+            <p><strong>Controls:</strong></p>
             <ul>
-                <li>Move the blue point using arrow keys (↑←↓→)</li>
-                <li>In two-player mode, red point moves with WASD keys</li>
-                <li><strong>Game Modes:</strong></li>
-                <li class="sub-item">Offense: Try to catch the escaping red point</li>
-                <li class="sub-item">Defense: Try to escape from the chasing red point</li>
-                <li class="sub-item">Two Player: Take turns moving points</li>
-                <li>After each move, a random connection disappears</li>
-                <li>Red point always moves first</li>
-                <li>If points get separated with no path between them:</li>
-                <li class="sub-item">Offense Mode: Red Wins</li>
-                <li class="sub-item">Defense Mode: Blue Wins</li>
+                <li>Use Arrow Keys to move the Blue Point</li>
+                <li>WASD Keys for Red Point (Two-Player Mode only)</li>
             </ul>
-            <p>Strategy Tip: Plan your moves carefully - the path you break might be your own escape route!</p>
-            <button id="closeBtn" onclick="closeInstructions()">Close</button>
+            <p><strong>Game Modes:</strong></p>
+            <ul>
+                <li>Offense Mode: You (Blue) try to catch Red. Red moves first and tries to escape!</li>
+                <li>Defense Mode: You (Blue) try to escape! Red moves first and tries to catch you!</li>
+                <li>Two-Player Mode: Red uses WASD, Blue uses Arrows</li>
+            </ul>
+            <p><strong>Rules:</strong></p>
+            <ul>
+                <li>After each move, a random path disappears</li>
+                <li>Game ends when points connect or become separated</li>
+            </ul>
+            <button onclick="closeInstructions()" class="game-button">Close</button>
         </div>
     </div>
+
     <script src="game.js"></script>
 </body>
 </html>
