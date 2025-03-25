@@ -14,7 +14,6 @@ let redPos = { x: GRID_SIZE - 1, y: 0 };
 let edges = [];
 let gameOver = false;
 let gameMode = 'offense'; // 'offense', 'defense', or 'twoPlayer'
-let redTurn = true; // Red always moves first
 
 function updateGameTitle() {
     const title = document.getElementById('gameTitle');
@@ -255,56 +254,59 @@ function checkGameOver() {
 function handleMove(key) {
     if (gameOver) return;
 
-    // Handle red's turn
-    if (redTurn) {
-        if (gameMode === 'twoPlayer') {
-            // Two-player mode: Handle WASD controls for red
-            const oldPos = { ...redPos };
-            switch (key) {
-                case 'w': if (redPos.y > 0) redPos.y--; break;
-                case 's': if (redPos.y < GRID_SIZE - 1) redPos.y++; break;
-                case 'a': if (redPos.x > 0) redPos.x--; break;
-                case 'd': if (redPos.x < GRID_SIZE - 1) redPos.x++; break;
-                default: return;
-            }
+    if (gameMode === 'twoPlayer') {
+        // Two-player mode logic
+        const oldPos = { ...redPos };
+        switch (key) {
+            case 'w': if (redPos.y > 0) redPos.y--; break;
+            case 's': if (redPos.y < GRID_SIZE - 1) redPos.y++; break;
+            case 'a': if (redPos.x > 0) redPos.x--; break;
+            case 'd': if (redPos.x < GRID_SIZE - 1) redPos.x++; break;
+            default: return;
+        }
 
-            if (canMove(oldPos, redPos)) {
-                removeRandomEdge();
-                redTurn = false;
-                if (checkGameOver()) {
-                    drawGame();
-                    return;
-                }
-            } else {
-                redPos = oldPos;
+        if (canMove(oldPos, redPos)) {
+            removeRandomEdge();
+            if (checkGameOver()) {
+                drawGame();
+                return;
             }
         } else {
-            // AI movement for red
-            if (gameMode === 'offense') {
-                // Red evades in offense mode
-                if (moveRedEvade()) {
-                    removeRandomEdge();
-                    redTurn = false;
-                    if (checkGameOver()) {
-                        drawGame();
-                        return;
-                    }
-                }
-            } else {
-                // Red attacks in defense mode
-                if (moveRedAttack()) {
-                    removeRandomEdge();
-                    redTurn = false;
-                    if (checkGameOver()) {
-                        drawGame();
-                        return;
-                    }
-                }
-            }
+            redPos = oldPos;
         }
-        drawGame();
-        return;
+    } else {
+        // Single-player mode logic
+        const oldPos = { ...bluePos };
+        switch (key) {
+            case 'ArrowLeft': if (bluePos.x > 0) bluePos.x--; break;
+            case 'ArrowRight': if (bluePos.x < GRID_SIZE - 1) bluePos.x++; break;
+            case 'ArrowUp': if (bluePos.y > 0) bluePos.y--; break;
+            case 'ArrowDown': if (bluePos.y < GRID_SIZE - 1) bluePos.y++; break;
+            default: return;
+        }
+
+        if (canMove(oldPos, bluePos)) {
+            removeRandomEdge();
+            if (checkGameOver()) {
+                drawGame();
+                return;
+            }
+
+            // Immediate AI response
+            if (gameMode === 'offense') {
+                moveRedEvade();
+            } else { // defense mode
+                moveRedAttack();
+            }
+            removeRandomEdge();
+            checkGameOver();
+        } else {
+            bluePos = oldPos;
+        }
     }
+    
+    drawGame();
+}
 
     // Handle blue's turn (player)
     const oldPos = { ...bluePos };
@@ -363,37 +365,30 @@ window.onclick = function(event) {
 
 function resetGame() {
     gameOver = false;
-    redTurn = true; // Red always starts
     document.getElementById('message').textContent = '';
     initializeEdges();
     initializePositions();
     updateGameTitle();
     
-    // If in single-player mode and it's red's turn, make the first move
-    if (gameMode !== 'twoPlayer' && redTurn) {
-        if (gameMode === 'offense') {
-            moveRedEvade();
-        } else {
-            moveRedAttack();
-        }
+    // Handle initial moves based on game mode
+    if (gameMode === 'offense') {
+        // In offense mode, red moves first and removes an edge
+        moveRedEvade();
         removeRandomEdge();
-        redTurn = false;
     }
+    // In defense mode, blue moves first with complete grid
+    // In two-player mode, red moves first using WASD
     
     drawGame();
 }
-
 // Event listeners
 document.addEventListener('keydown', (e) => {
     e.preventDefault();
-    
-    if (gameMode === 'twoPlayer' && redTurn) {
-        // WASD controls for red in two-player mode
+    if (gameMode === 'twoPlayer') {
         if (['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
             handleMove(e.key.toLowerCase());
         }
-    } else if (!redTurn) {
-        // Arrow keys for blue
+    } else {
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
             handleMove(e.key);
         }
