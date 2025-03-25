@@ -1,6 +1,7 @@
 const GRID_SIZE = 6;
 const CELL_SIZE = 80;
 const POINT_RADIUS = 8;
+const POINT_OFFSET = CELL_SIZE / 2;
 
 let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
@@ -63,8 +64,8 @@ function drawGame() {
     edges.forEach(edge => {
         if (edge.active) {
             ctx.beginPath();
-            ctx.moveTo(edge.x1 * CELL_SIZE, edge.y1 * CELL_SIZE);
-            ctx.lineTo(edge.x2 * CELL_SIZE, edge.y2 * CELL_SIZE);
+            ctx.moveTo(edge.x1 * CELL_SIZE + POINT_OFFSET, edge.y1 * CELL_SIZE + POINT_OFFSET);
+            ctx.lineTo(edge.x2 * CELL_SIZE + POINT_OFFSET, edge.y2 * CELL_SIZE + POINT_OFFSET);
             ctx.strokeStyle = '#666';
             ctx.lineWidth = 1;
             ctx.stroke();
@@ -74,8 +75,8 @@ function drawGame() {
     const drawPoint = (pos, color) => {
         ctx.beginPath();
         ctx.arc(
-            pos.x * CELL_SIZE,
-            pos.y * CELL_SIZE,
+            pos.x * CELL_SIZE + POINT_OFFSET,
+            pos.y * CELL_SIZE + POINT_OFFSET,
             POINT_RADIUS,
             0,
             Math.PI * 2
@@ -180,11 +181,11 @@ function moveRed() {
     const validMoves = getValidMoves(redPos);
     if (validMoves.length === 0) return false;
 
-    // Check if blue is adjacent and about to capture
-    const isBlueAdjacent = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
-    
-    // If blue is adjacent, must move if possible
-    if (isBlueAdjacent && validMoves.length > 0) {
+    // Check if blue is adjacent
+    const isAdjacentToBlue = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
+
+    // If blue is adjacent, MUST move if possible
+    if (isAdjacentToBlue) {
         const escapeMoves = validMoves.filter(move => 
             Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y) > 1
         );
@@ -198,11 +199,10 @@ function moveRed() {
         const pathToBlue = findShortestPath(bluePos, move);
         const distanceFromBlue = pathToBlue ? pathToBlue.length : Infinity;
         const futureOptions = evaluatePosition(move);
-        const immediateOptions = getValidMoves(move).length;
         
         return {
             move,
-            score: distanceFromBlue * 10 + futureOptions * 5 + immediateOptions * 3
+            score: distanceFromBlue * 10 + futureOptions * 5
         };
     });
 
@@ -245,22 +245,34 @@ function handleMove(key) {
     }
 
     if (canMove(oldPos, bluePos)) {
-        // First check if player caught the red point
         if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
             checkGameOver();
             drawGame();
             return;
         }
 
-        // Remove edge and redraw
         removeRandomEdge();
         drawGame();
 
-        // Move red point
-        moveRed();
-        drawGame();
+        // Force red to move if it has valid moves and is adjacent to blue
+        const validMoves = getValidMoves(redPos);
+        const isAdjacentToBlue = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
+        
+        if (validMoves.length > 0 && isAdjacentToBlue) {
+            const escapeMoves = validMoves.filter(move => 
+                Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y) > 1
+            );
+            if (escapeMoves.length > 0) {
+                redPos = escapeMoves[Math.floor(Math.random() * escapeMoves.length)];
+            } else {
+                moveRed();
+            }
+            drawGame();
+        } else if (validMoves.length > 0) {
+            moveRed();
+            drawGame();
+        }
 
-        // Check for game over after all moves are complete
         if (checkGameOver()) {
             drawGame();
             return;
