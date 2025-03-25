@@ -1,42 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Catch the Point</title>
+    <title>PointChase</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Catch the Point</h1>
-        <div id="gameTitle" class="game-title">Try to catch the red point!</div>
-        <canvas id="gameCanvas"></canvas>
-        <div class="controls">
-            <button onclick="resetGame()" class="game-button">Reset Game</button>
-            <button onclick="toggleMode()" id="modeBtn" class="game-button">Offense</button>
-            <button onclick="showInstructions()" class="game-button">How to Play</button>
-        </div>
-        <div id="message"></div>
+    <h1>PointChase</h1>
+    <h2 id="gameTitle">Try to escape from the red point</h2>
+    <h3 id="gameSubtitle"></h3>
+    
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="button-container">
+        <button id="resetBtn" class="game-button">Reset Game</button>
+        <button id="modeBtn" class="game-button">Defense</button>
+        <button id="helpBtn" class="game-button">How to Play</button>
     </div>
 
+    <!-- Mode Selection Modal -->
+    <div id="modeSelectionModal" class="modal">
+        <div class="modal-content">
+            <h2>Select Game Mode</h2>
+            <div class="mode-buttons">
+                <button onclick="selectMode('offense')" class="game-button">Offense Mode</button>
+                <button onclick="selectMode('defense')" class="game-button defense-mode">Defense Mode</button>
+            </div>
+            <p class="mode-description">
+                Offense: Control blue point to catch red<br>
+                Defense: Control red point to escape blue
+            </p>
+        </div>
+    </div>
+
+    <!-- Instructions Modal -->
     <div id="instructionsModal" class="modal">
         <div class="modal-content">
             <h2>How to Play</h2>
-            <p><strong>Controls:</strong></p>
-            <ul>
-                <li>Use Arrow Keys to move the Blue Point</li>
-                <li>WASD Keys for Red Point (Two-Player Mode only)</li>
-            </ul>
-            <p><strong>Game Modes:</strong></p>
-            <ul>
-                <li>Offense Mode: You (Blue) try to catch Red. Red moves first and tries to escape!</li>
-                <li>Defense Mode: You (Blue) try to escape! Red moves first and tries to catch you!</li>
-                <li>Two-Player Mode: Red uses WASD, Blue uses Arrows</li>
-            </ul>
-            <p><strong>Rules:</strong></p>
-            <ul>
-                <li>After each move, a random path disappears</li>
-                <li>Game ends when points connect or become separated</li>
-            </ul>
-            <button onclick="closeInstructions()" class="game-button">Close</button>
+            <p>Use arrow keys to move your point.</p>
+            <p>In Offense Mode: You are blue, trying to catch red.</p>
+            <p>In Defense Mode: You are red, trying to escape blue.</p>
+            <p>After each move, a random wall disappears!</p>
+            <button id="closeInstructions" class="game-button">Close</button>
         </div>
     </div>
 
