@@ -189,54 +189,29 @@ function findShortestPath(start, end) {
 
 function moveRedEvade() {
     const validMoves = getValidMoves(redPos);
-    if (validMoves.length === 0) return;
+    if (validMoves.length === 0) return false;
 
-    let bestMove = validMoves[0];
-    let bestScore = -Infinity;
+    const isAdjacentToBlue = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
 
-    for (let move of validMoves) {
-        let score = 0;
-        
-        // Factor 1: Path length from blue to this position
-        const pathToBlue = findShortestPath(bluePos, move);
-        if (pathToBlue) {
-            score += pathToBlue.length * 2; // Weight path length heavily
-        } else {
-            score += GRID_SIZE * 2; // If no path exists, that's very good
-        }
-
-        // Factor 2: Count remaining edges in the area
-        let remainingEdges = 0;
-        const checkRadius = 2; // Check surrounding area
-        for (let i = Math.max(0, move.x - checkRadius); i <= Math.min(GRID_SIZE - 1, move.x + checkRadius); i++) {
-            for (let j = Math.max(0, move.y - checkRadius); j <= Math.min(GRID_SIZE - 1, move.y + checkRadius); j++) {
-                if (i < GRID_SIZE - 1 && edges[i][j].right) remainingEdges++;
-                if (j < GRID_SIZE - 1 && edges[i][j].bottom) remainingEdges++;
-            }
-        }
-        score -= remainingEdges; // Prefer areas with fewer edges
-
-        // Factor 3: Number of escape routes from this position
-        const escapeRoutes = getValidMoves(move).length;
-        score -= escapeRoutes * 0.5; // Slightly prefer positions with fewer escape routes
-                                    // as they're more likely to become isolated after edge removal
-
-        // Factor 4: Distance from corners and edges
-        const cornerDistance = Math.min(
-            Math.hypot(move.x, move.y), // Distance from top-left
-            Math.hypot(move.x, GRID_SIZE - 1 - move.y), // Distance from bottom-left
-            Math.hypot(GRID_SIZE - 1 - move.x, move.y), // Distance from top-right
-            Math.hypot(GRID_SIZE - 1 - move.x, GRID_SIZE - 1 - move.y) // Distance from bottom-right
+    if (isAdjacentToBlue) {
+        const escapeMoves = validMoves.filter(move => 
+            Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y) > 1
         );
-        score -= cornerDistance * 0.5; // Slightly prefer corners as they naturally have fewer edges
-
-        if (score > bestScore) {
-            bestScore = score;
-            bestMove = move;
+        if (escapeMoves.length > 0) {
+            redPos = escapeMoves[Math.floor(Math.random() * escapeMoves.length)];
+            return true;
         }
     }
 
-    redPos = bestMove;
+    // Score moves based on distance from blue
+    const scoredMoves = validMoves.map(move => ({
+        move,
+        score: Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y)
+    }));
+
+    scoredMoves.sort((a, b) => b.score - a.score);
+    redPos = scoredMoves[0].move;
+    return true;
 }
 
 function moveRedAttack() {
