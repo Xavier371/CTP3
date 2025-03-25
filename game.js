@@ -236,7 +236,27 @@ function handleMove(key) {
     if (gameOver) return;
 
     if (!redTurn) {
-        const oldPos = { ...bluePos };
+        const oldBluePos = { ...bluePos };
+        const oldRedPos = { ...redPos };
+        
+        // Check if red and blue are adjacent before blue moves
+        const isAdjacentBeforeMove = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
+        
+        // If adjacent, red must move first if it has valid escape moves
+        if (isAdjacentBeforeMove && !isTwoPlayer) {
+            const validMoves = getValidMoves(redPos);
+            const escapeMoves = validMoves.filter(move => 
+                Math.abs(move.x - oldBluePos.x) + Math.abs(move.y - oldBluePos.y) > 1
+            );
+            
+            if (escapeMoves.length > 0) {
+                redPos = escapeMoves[Math.floor(Math.random() * escapeMoves.length)];
+                removeRandomEdge();
+                drawGame();
+            }
+        }
+
+        // Now handle blue's move
         switch (key) {
             case 'ArrowLeft': if (bluePos.x > 0) bluePos.x--; break;
             case 'ArrowRight': if (bluePos.x < GRID_SIZE - 1) bluePos.x++; break;
@@ -244,7 +264,8 @@ function handleMove(key) {
             case 'ArrowDown': if (bluePos.y < GRID_SIZE - 1) bluePos.y++; break;
         }
 
-        if (canMove(oldPos, bluePos)) {
+        if (canMove(oldBluePos, bluePos)) {
+            // Check for immediate capture
             if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
                 checkGameOver();
                 drawGame();
@@ -254,26 +275,30 @@ function handleMove(key) {
             removeRandomEdge();
             drawGame();
 
-            if (isTwoPlayer) {
-                redTurn = true;
-            } else {
+            if (!isTwoPlayer) {
+                // Check if red needs to move after blue's move
                 const validMoves = getValidMoves(redPos);
-                const isAdjacentToBlue = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
-                
-                if (validMoves.length > 0 && isAdjacentToBlue) {
-                    const escapeMoves = validMoves.filter(move => 
-                        Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y) > 1
-                    );
-                    if (escapeMoves.length > 0) {
-                        redPos = escapeMoves[Math.floor(Math.random() * escapeMoves.length)];
+                const isAdjacentAfterMove = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
+
+                if (validMoves.length > 0) {
+                    if (isAdjacentAfterMove) {
+                        // Must escape if possible
+                        const escapeMoves = validMoves.filter(move => 
+                            Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y) > 1
+                        );
+                        if (escapeMoves.length > 0) {
+                            redPos = escapeMoves[Math.floor(Math.random() * escapeMoves.length)];
+                        } else {
+                            moveRed();
+                        }
                     } else {
                         moveRed();
                     }
-                    drawGame();
-                } else if (validMoves.length > 0) {
-                    moveRed();
+                    removeRandomEdge();
                     drawGame();
                 }
+            } else {
+                redTurn = true;
             }
 
             if (checkGameOver()) {
@@ -281,9 +306,10 @@ function handleMove(key) {
                 return;
             }
         } else {
-            bluePos = oldPos;
+            bluePos = oldBluePos;
         }
     } else if (isTwoPlayer) {
+        // Two-player red movement remains the same
         const oldPos = { ...redPos };
         switch (key) {
             case 'a': if (redPos.x > 0) redPos.x--; break;
@@ -314,7 +340,6 @@ function handleMove(key) {
     
     drawGame();
 }
-
 function toggleMode() {
     isTwoPlayer = !isTwoPlayer;
     const modeBtn = document.getElementById('modeBtn');
