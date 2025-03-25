@@ -13,8 +13,8 @@ let bluePos = { x: 0, y: GRID_SIZE - 1 };
 let redPos = { x: GRID_SIZE - 1, y: 0 };
 let edges = [];
 let gameOver = false;
-let isTwoPlayer = false;
-let redTurn = false;
+let gameMode = 'offense'; // 'offense', 'defense', or 'twoPlayer'
+let redTurn = true; // Red always moves first
 
 function getRandomPosition() {
     return {
@@ -90,10 +90,12 @@ function drawGame() {
         ctx.stroke();
     };
 
-    if (!(bluePos.x === redPos.x && bluePos.y === redPos.y)) {
+    if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
+        drawPoint(bluePos, '#8A2BE2');
+    } else {
         drawPoint(redPos, 'red');
+        drawPoint(bluePos, 'blue');
     }
-    drawPoint(bluePos, 'blue');
 }
 
 function isEdgeBetweenPoints(edge, pos1, pos2) {
@@ -178,7 +180,7 @@ function evaluatePosition(pos, depth = 2) {
     return Math.max(...moves.map(move => evaluatePosition(move, depth - 1))) + moves.length;
 }
 
-function moveRed() {
+function moveRedEvade() {
     const validMoves = getValidMoves(redPos);
     if (validMoves.length === 0) return false;
 
@@ -198,10 +200,38 @@ function moveRed() {
         const pathToBlue = findShortestPath(bluePos, move);
         const distanceFromBlue = pathToBlue ? pathToBlue.length : Infinity;
         const futureOptions = evaluatePosition(move);
+        const currentDistance = Math.abs(redPos.x - bluePos.x) + Math.abs(redPos.y - bluePos.y);
+        const newDistance = Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y);
+        const distanceBonus = newDistance >= currentDistance ? 1000 : 0;
         
         return {
             move,
-            score: distanceFromBlue * 10 + futureOptions * 5
+            score: distanceBonus + distanceFromBlue * 10 + futureOptions * 5
+        };
+    });
+
+    scoredMoves.sort((a, b) => b.score - a.score);
+    
+    if (scoredMoves.length > 0) {
+        redPos = scoredMoves[0].move;
+        return true;
+    }
+    
+    return false;
+}
+
+function moveRedAttack() {
+    const validMoves = getValidMoves(redPos);
+    if (validMoves.length === 0) return false;
+
+    const scoredMoves = validMoves.map(move => {
+        const pathToBlue = findShortestPath(move, bluePos);
+        const distanceToBlue = pathToBlue ? pathToBlue.length : Infinity;
+        const futureOptions = evaluatePosition(move);
+        
+        return {
+            move,
+            score: -distanceToBlue * 10 + futureOptions
         };
     });
 
@@ -218,14 +248,26 @@ function moveRed() {
 function checkGameOver() {
     if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
         gameOver = true;
-        document.getElementById('message').textContent = 'Blue Wins!';
+        if (gameMode === 'offense') {
+            document.getElementById('message').textContent = 'Blue Wins - Points are joined!';
+        } else if (gameMode === 'defense') {
+            document.getElementById('message').textContent = 'Red Wins - Points are joined!';
+        } else {
+            document.getElementById('message').textContent = 'Blue Wins - Points are joined!';
+        }
         return true;
     }
     
     const path = findShortestPath(bluePos, redPos);
     if (!path) {
         gameOver = true;
-        document.getElementById('message').textContent = 'Red Wins - Points are separated!';
+        if (gameMode === 'offense') {
+            document.getElementById('message').textContent = 'Red Wins - Points are separated!';
+        } else if (gameMode === 'defense') {
+            document.getElementById('message').textContent = 'Blue Wins - Points are separated!';
+        } else {
+            document.getElementById('message').textContent = 'Red Wins - Points are separated!';
+        }
         return true;
     }
     
@@ -235,37 +277,49 @@ function checkGameOver() {
 function handleMove(key) {
     if (gameOver) return;
 
-    if (!redTurn) {
-        const oldBluePos = { ...bluePos };
-        const oldRedPos = { ...redPos };
-        
-        // Check if red and blue are adjacent before blue moves
-        const isAdjacentBeforeMove = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
-        
-        // If adjacent, red must move first if it has valid escape moves
-        if (isAdjacentBeforeMove && !isTwoPlayer) {
-            const validMoves = getValidMoves(redPos);
-            const escapeMoves = validMoves.filter(move => 
-                Math.abs(move.x - oldBluePos.x) + Math.abs(move.y - oldBluePos.y) > 1
-            );
-            
-            if (escapeMoves.length > 0) {
-                redPos = escapeMoves[Math.floor(Math.random() * escapeMoves.length)];
+    // Red's turn (always first)
+    if (redTurn) {
+        if (gameMode === 'twoPlayer') {
+            const oldPos = { ...redPos };
+            switch (key) {
+                case 'a': if (redPos.x > 0) redPos.x--; break;
+                case 'd': if (redPos.x < GRID_SIZE - 1) redPos.x++; break;
+                case 'w': if (redPos.y > 0) redPos.y--; break;
+                case 's': if (redPos.y < GRID_SIZE - 1) redPos.y++; break;
+                default: return; // Only process WASD keys for red
+            }
+
+            if (canMove(oldPos, redPos)) {
                 removeRandomEdge();
                 drawGame();
+                redTurn = false;
+            } else {
+                redPos = oldPos;
             }
+        } else {
+            // AI movement
+            if (gameMode === 'offense') {
+                moveRedEvade();
+            } else { // defense mode
+                moveRedAttack();
+            }
+            removeRandomEdge();
+            drawGame();
+            redTurn = false;
         }
-
-        // Now handle blue's move
+    } 
+    // Blue's turn
+    else {
+        const oldPos = { ...bluePos };
         switch (key) {
             case 'ArrowLeft': if (bluePos.x > 0) bluePos.x--; break;
             case 'ArrowRight': if (bluePos.x < GRID_SIZE - 1) bluePos.x++; break;
             case 'ArrowUp': if (bluePos.y > 0) bluePos.y--; break;
             case 'ArrowDown': if (bluePos.y < GRID_SIZE - 1) bluePos.y++; break;
+            default: return; // Only process arrow keys for blue
         }
 
-        if (canMove(oldBluePos, bluePos)) {
-            // Check for immediate capture
+        if (canMove(oldPos, bluePos)) {
             if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
                 checkGameOver();
                 drawGame();
@@ -274,82 +328,54 @@ function handleMove(key) {
 
             removeRandomEdge();
             drawGame();
-
-            if (!isTwoPlayer) {
-                // Check if red needs to move after blue's move
-                const validMoves = getValidMoves(redPos);
-                const isAdjacentAfterMove = Math.abs(bluePos.x - redPos.x) + Math.abs(bluePos.y - redPos.y) === 1;
-
-                if (validMoves.length > 0) {
-                    if (isAdjacentAfterMove) {
-                        // Must escape if possible
-                        const escapeMoves = validMoves.filter(move => 
-                            Math.abs(move.x - bluePos.x) + Math.abs(move.y - bluePos.y) > 1
-                        );
-                        if (escapeMoves.length > 0) {
-                            redPos = escapeMoves[Math.floor(Math.random() * escapeMoves.length)];
-                        } else {
-                            moveRed();
-                        }
-                    } else {
-                        moveRed();
-                    }
-                    removeRandomEdge();
-                    drawGame();
-                }
-            } else {
-                redTurn = true;
-            }
+            redTurn = true;
 
             if (checkGameOver()) {
                 drawGame();
                 return;
             }
         } else {
-            bluePos = oldBluePos;
-        }
-    } else if (isTwoPlayer) {
-        // Two-player red movement remains the same
-        const oldPos = { ...redPos };
-        switch (key) {
-            case 'a': if (redPos.x > 0) redPos.x--; break;
-            case 'd': if (redPos.x < GRID_SIZE - 1) redPos.x++; break;
-            case 'w': if (redPos.y > 0) redPos.y--; break;
-            case 's': if (redPos.y < GRID_SIZE - 1) redPos.y++; break;
-        }
-
-        if (canMove(oldPos, redPos)) {
-            if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
-                checkGameOver();
-                drawGame();
-                return;
-            }
-
-            removeRandomEdge();
-            drawGame();
-            redTurn = false;
-
-            if (checkGameOver()) {
-                drawGame();
-                return;
-            }
-        } else {
-            redPos = oldPos;
+            bluePos = oldPos;
         }
     }
     
     drawGame();
 }
+
 function toggleMode() {
-    isTwoPlayer = !isTwoPlayer;
-    const modeBtn = document.getElementById('modeBtn');
-    modeBtn.textContent = isTwoPlayer ? 'Two Player' : 'One Player';
+    if (gameMode === 'offense') {
+        gameMode = 'defense';
+        document.getElementById('modeBtn').textContent = 'Defense';
+    } else if (gameMode === 'defense') {
+        gameMode = 'twoPlayer';
+        document.getElementById('modeBtn').textContent = 'Two Player';
+    } else {
+        gameMode = 'offense';
+        document.getElementById('modeBtn').textContent = 'Offense';
+    }
     resetGame();
+}
+
+function showInstructions() {
+    const modal = document.getElementById('instructionsModal');
+    modal.style.display = "block";
+}
+
+function closeInstructions() {
+    const modal = document.getElementById('instructionsModal');
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('instructionsModal');
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
 }
 
 function resetGame() {
     gameOver = false;
-    redTurn = false;
+    redTurn = true;
     document.getElementById('message').textContent = '';
     initializeEdges();
     initializePositions();
@@ -357,15 +383,14 @@ function resetGame() {
 }
 
 document.addEventListener('keydown', (e) => {
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        e.preventDefault();
-        if (!redTurn) {
-            handleMove(e.key);
-        }
-    } else if (isTwoPlayer && ['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
-        e.preventDefault();
-        if (redTurn) {
+    e.preventDefault();
+    if (gameMode === 'twoPlayer' && redTurn) {
+        if (['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
             handleMove(e.key.toLowerCase());
+        }
+    } else if (!redTurn) {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            handleMove(e.key);
         }
     }
 });
