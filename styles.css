@@ -1,12 +1,19 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;  /* Changed from center to flex-start */
     min-height: 100vh;
     margin: 0;
     background-color: white;
     font-family: Arial, sans-serif;
+    padding-top: 40px;  /* Reduced from 20px and changed to padding-top only */
 }
 
 h1 {
@@ -17,16 +24,16 @@ h1 {
 
 #gameContainer {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    margin: 20px;
+    gap: 10px;  /* Reduced from 20px to bring elements closer */
 }
 
 canvas {
     background-color: white;
 }
 
-.control-btn {
+#resetBtn {
     padding: 15px 25px;
     font-size: 24px;
     border: none;
@@ -34,15 +41,17 @@ canvas {
     color: white;
     border-radius: 5px;
     cursor: pointer;
-    margin: 20px auto;
-    position: relative;
-    z-index: 100;
-    display: block;
     width: 120px;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;  /* Added small margin-top instead of using gap */
 }
 
-.control-btn:hover {
+#resetBtn:hover {
     background-color: #218838;
+}
+
+#resetBtn:active {
+    transform: scale(0.98);
 }
 
 #message {
