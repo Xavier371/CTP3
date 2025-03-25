@@ -394,14 +394,46 @@ document.addEventListener('keydown', (e) => {
 
 // Make sure redTurn is properly initialized in resetGame
 function resetGame() {
+    // Random position on top row for blue
+    bluePos = {
+        x: Math.floor(Math.random() * GRID_SIZE),
+        y: 0
+    };
+    
+    // Random position on bottom row for red
+    redPos = {
+        x: Math.floor(Math.random() * GRID_SIZE),
+        y: GRID_SIZE - 1
+    };
+    
+    // Reset edges
+    for (let i = 0; i < GRID_SIZE; i++) {
+        edges[i] = [];
+        for (let j = 0; j < GRID_SIZE; j++) {
+            edges[i][j] = {
+                right: true,
+                bottom: true
+            };
+        }
+    }
+    
+    // If in offense mode, remove 2 random edges at start
+    if (gameMode === 'offense') {
+        removeRandomEdge();
+        removeRandomEdge();
+    }
+    
     gameOver = false;
-    redTurn = true;  // Red always starts
-    document.getElementById('message').textContent = '';
-    initializeEdges();
-    initializePositions();
-    updateGameTitle();
+    lastCapturePos = null;
     drawGame();
 }
+
+function toggleMode() {
+    gameMode = gameMode === 'offense' ? 'defense' : 'offense';
+    updateGameTitle();
+    resetGame(); // This will handle the edge removal for offense mode
+}
+
 
 // Initialize game
 resetGame();
