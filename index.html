@@ -13,7 +13,28 @@
         <canvas id="gameCanvas"></canvas>
         <div class="button-container">
             <button id="resetBtn" onclick="resetGame()">Reset</button>
-            <button id="modeBtn" onclick="toggleMode()">One Player</button>
+            <button id="modeBtn" onclick="toggleMode()">Offense</button>
+            <button id="instructionsBtn" onclick="showInstructions()">Instructions</button>
+        </div>
+    </div>
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content">
+            <h2>Instructions</h2>
+            <ul>
+                <li>Move the blue point using arrow keys (↑←↓→)</li>
+                <li>In two-player mode, red point moves with WASD keys</li>
+                <li><strong>Game Modes:</strong></li>
+                <li class="sub-item">Offense: Try to catch the escaping red point</li>
+                <li class="sub-item">Defense: Try to escape from the chasing red point</li>
+                <li class="sub-item">Two Player: Take turns moving points</li>
+                <li>After each move, a random connection disappears</li>
+                <li>Red point always moves first</li>
+                <li>If points get separated with no path between them:</li>
+                <li class="sub-item">Offense Mode: Red Wins</li>
+                <li class="sub-item">Defense Mode: Blue Wins</li>
+            </ul>
+            <p>Strategy Tip: Plan your moves carefully - the path you break might be your own escape route!</p>
+            <button id="closeBtn" onclick="closeInstructions()">Close</button>
         </div>
     </div>
     <script src="game.js"></script>
