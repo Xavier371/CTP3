@@ -11,7 +11,10 @@
     <div id="message"></div>
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
-        <button id="resetBtn" onclick="resetGame()">Reset</button>
+        <div class="button-container">
+            <button id="resetBtn" onclick="resetGame()">Reset</button>
+            <button id="modeBtn" onclick="toggleMode()">One Player</button>
+        </div>
     </div>
     <script src="game.js"></script>
 </body>
