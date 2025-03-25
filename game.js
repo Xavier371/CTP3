@@ -1,6 +1,7 @@
 const GRID_SIZE = 6;
 const CELL_SIZE = 80;
 const POINT_RADIUS = 8;
+const POINT_OFFSET = CELL_SIZE / 2;  // For centering points
 
 let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
@@ -74,8 +75,8 @@ function drawGame() {
     const drawPoint = (pos, color) => {
         ctx.beginPath();
         ctx.arc(
-            pos.x * CELL_SIZE,
-            pos.y * CELL_SIZE,
+            pos.x * CELL_SIZE + POINT_OFFSET,
+            pos.y * CELL_SIZE + POINT_OFFSET,
             POINT_RADIUS,
             0,
             Math.PI * 2
@@ -180,7 +181,6 @@ function moveRed() {
     const validMoves = getValidMoves(redPos);
     if (validMoves.length === 0) return false;
 
-    // Filter out moves that would place red adjacent to blue if alternatives exist
     const isAdjacentToBlue = (pos) => {
         return Math.abs(pos.x - bluePos.x) + Math.abs(pos.y - bluePos.y) === 1;
     };
@@ -188,7 +188,6 @@ function moveRed() {
     let availableMoves = validMoves;
     const saferMoves = validMoves.filter(move => !isAdjacentToBlue(move));
     
-    // Only use safer moves if they exist
     if (saferMoves.length > 0) {
         availableMoves = saferMoves;
     }
@@ -202,21 +201,28 @@ function moveRed() {
         const currentPathToBlue = findShortestPath(bluePos, redPos);
         const currentDistance = currentPathToBlue ? currentPathToBlue.length : Infinity;
         
-        // Increased penalty for moving adjacent to blue
         const adjacencyPenalty = isAdjacentToBlue(move) ? -2000 : 0;
         const distancePenalty = distanceFromBlue < currentDistance ? -1000 : 0;
+        const distanceBonus = distanceFromBlue >= currentDistance ? 500 : 0;
         
         return {
             move,
-            score: distanceFromBlue * 10 + futureOptions * 5 + 
-                   immediateOptions * 3 + distancePenalty + adjacencyPenalty
+            score: distanceFromBlue * 10 + 
+                   futureOptions * 5 + 
+                   immediateOptions * 3 + 
+                   distancePenalty + 
+                   adjacencyPenalty +
+                   distanceBonus
         };
     });
 
     scoredMoves.sort((a, b) => b.score - a.score);
     
     if (scoredMoves.length > 0) {
-        redPos = scoredMoves[0].move;
+        // Choose randomly among top moves to add unpredictability
+        const topMoves = scoredMoves.filter(m => 
+            m.score >= scoredMoves[0].score - 10);
+        redPos = topMoves[Math.floor(Math.random() * topMoves.length)].move;
         return true;
     }
     
@@ -252,23 +258,26 @@ function handleMove(key) {
     }
 
     if (canMove(oldPos, bluePos)) {
-        // First check if player caught the red point
         if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
             checkGameOver();
             drawGame();
             return;
         }
 
-        // Remove edge and redraw
         removeRandomEdge();
         drawGame();
 
-        // Move red point
-        if (moveRed()) {
+        const redMoved = moveRed();
+        if (redMoved) {
             drawGame();
+        } else {
+            const validMoves = getValidMoves(redPos);
+            if (validMoves.length > 0) {
+                redPos = validMoves[Math.floor(Math.random() * validMoves.length)];
+                drawGame();
+            }
         }
 
-        // Check for game over after all moves are complete
         if (checkGameOver()) {
             drawGame();
             return;
