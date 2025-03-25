@@ -1,13 +1,12 @@
 const GRID_SIZE = 6;
 const CELL_SIZE = 80;
 const POINT_RADIUS = 8;
-const PADDING = CELL_SIZE;
 
 let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
 
-canvas.width = CELL_SIZE * GRID_SIZE + (PADDING * 2);
-canvas.height = CELL_SIZE * GRID_SIZE + (PADDING * 2);
+canvas.width = CELL_SIZE * GRID_SIZE;
+canvas.height = CELL_SIZE * GRID_SIZE;
 
 let bluePos = { x: 0, y: GRID_SIZE - 1 };
 let redPos = { x: GRID_SIZE - 1, y: 0 };
@@ -64,8 +63,8 @@ function drawGame() {
     edges.forEach(edge => {
         if (edge.active) {
             ctx.beginPath();
-            ctx.moveTo(edge.x1 * CELL_SIZE + PADDING, edge.y1 * CELL_SIZE + PADDING);
-            ctx.lineTo(edge.x2 * CELL_SIZE + PADDING, edge.y2 * CELL_SIZE + PADDING);
+            ctx.moveTo(edge.x1 * CELL_SIZE, edge.y1 * CELL_SIZE);
+            ctx.lineTo(edge.x2 * CELL_SIZE, edge.y2 * CELL_SIZE);
             ctx.strokeStyle = '#666';
             ctx.lineWidth = 1;
             ctx.stroke();
@@ -75,8 +74,8 @@ function drawGame() {
     const drawPoint = (pos, color) => {
         ctx.beginPath();
         ctx.arc(
-            pos.x * CELL_SIZE + PADDING,
-            pos.y * CELL_SIZE + PADDING,
+            pos.x * CELL_SIZE,
+            pos.y * CELL_SIZE,
             POINT_RADIUS,
             0,
             Math.PI * 2
@@ -181,7 +180,20 @@ function moveRed() {
     const validMoves = getValidMoves(redPos);
     if (validMoves.length === 0) return false;
 
-    const scoredMoves = validMoves.map(move => {
+    // Filter out moves that would place red adjacent to blue if alternatives exist
+    const isAdjacentToBlue = (pos) => {
+        return Math.abs(pos.x - bluePos.x) + Math.abs(pos.y - bluePos.y) === 1;
+    };
+
+    let availableMoves = validMoves;
+    const saferMoves = validMoves.filter(move => !isAdjacentToBlue(move));
+    
+    // Only use safer moves if they exist
+    if (saferMoves.length > 0) {
+        availableMoves = saferMoves;
+    }
+
+    const scoredMoves = availableMoves.map(move => {
         const pathToBlue = findShortestPath(bluePos, move);
         const distanceFromBlue = pathToBlue ? pathToBlue.length : Infinity;
         const futureOptions = evaluatePosition(move);
@@ -190,12 +202,14 @@ function moveRed() {
         const currentPathToBlue = findShortestPath(bluePos, redPos);
         const currentDistance = currentPathToBlue ? currentPathToBlue.length : Infinity;
         
+        // Increased penalty for moving adjacent to blue
+        const adjacencyPenalty = isAdjacentToBlue(move) ? -2000 : 0;
         const distancePenalty = distanceFromBlue < currentDistance ? -1000 : 0;
         
         return {
             move,
             score: distanceFromBlue * 10 + futureOptions * 5 + 
-                   immediateOptions * 3 + distancePenalty
+                   immediateOptions * 3 + distancePenalty + adjacencyPenalty
         };
     });
 
