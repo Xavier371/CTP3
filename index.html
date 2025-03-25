@@ -4,7 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grid Chase Game</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #gameContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px;
+        }
+
+        canvas {
+            background-color: white;
+            border: 1px solid #ccc;
+        }
+
+        .control-btn {
+            padding: 15px 25px;
+            font-size: 24px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 20px auto;
+            position: relative;
+            z-index: 100;
+            display: block;
+            width: 120px;
+        }
+
+        .control-btn:hover {
+            background-color: #218838;
+        }
+
+        #message {
+            font-size: 24px;
+            color: #28a745;
+            font-weight: bold;
+            height: 30px;
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <h1>Try to catch the red point!</h1>
