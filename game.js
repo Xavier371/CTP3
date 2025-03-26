@@ -119,37 +119,22 @@ function isEdgeBetweenPoints(edge, pos1, pos2) {
 }
 
 function removeRandomEdge() {
-    const availableEdges = [];
-    const centerX = (GRID_SIZE - 1) / 2;
-    const centerY = (GRID_SIZE - 1) / 2;
-    
-    // Collect all available edges with weights based on distance from center
-    for (let i = 0; i < GRID_SIZE; i++) {
-        for (let j = 0; j < GRID_SIZE; j++) {
-            // Calculate how central this position is (0 to 1, where 1 is most central)
-            const distanceFromCenter = 1 - (Math.abs(i - centerX) + Math.abs(j - centerY)) / (GRID_SIZE - 1);
-            
-            // Add edges to the pool multiple times based on centrality
-            // More central edges get added more times (2-3x for center, 1x for edges)
-            const weight = Math.floor(distanceFromCenter * 2) + 1;
-            
-            if (i < GRID_SIZE - 1 && edges[i][j].right) {
-                for (let w = 0; w < weight; w++) {
-                    availableEdges.push({x: i, y: j, type: 'right'});
-                }
-            }
-            if (j < GRID_SIZE - 1 && edges[i][j].bottom) {
-                for (let w = 0; w < weight; w++) {
-                    availableEdges.push({x: i, y: j, type: 'bottom'});
-                }
-            }
+    const activeEdges = edges.filter(edge => {
+        if (!edge.active) return false;
+        // Don't remove edge between points if they're adjacent
+        if (getDistance(bluePos, redPos) === 1 && 
+            isEdgeBetweenPoints(edge, bluePos, redPos)) {
+            return false;
         }
+        return true;
+    });
+
+    if (activeEdges.length > 0) {
+        const edge = activeEdges[Math.floor(Math.random() * activeEdges.length)];
+        edge.active = false;
+        return true;
     }
-    
-    if (availableEdges.length > 0) {
-        const edge = availableEdges[Math.floor(Math.random() * availableEdges.length)];
-        edges[edge.x][edge.y][edge.type] = false;
-    }
+    return false;
 }
 
 function canMove(from, to) {
@@ -394,60 +379,14 @@ document.addEventListener('keydown', (e) => {
 
 // Make sure redTurn is properly initialized in resetGame
 function resetGame() {
-    // Random position on top row for blue
-    bluePos = {
-        x: Math.floor(Math.random() * GRID_SIZE),
-        y: 0
-    };
-    
-    // Random position on bottom row for red
-    redPos = {
-        x: Math.floor(Math.random() * GRID_SIZE),
-        y: GRID_SIZE - 1
-    };
-    
-    // Reset all edges to true (visible)
-    for (let i = 0; i < GRID_SIZE; i++) {
-        edges[i] = [];
-        for (let j = 0; j < GRID_SIZE; j++) {
-            edges[i][j] = {
-                right: true,
-                bottom: true
-            };
-        }
-    }
-    
-    // If in offense mode, remove 2 random edges at start
-    if (gameMode === 'offense') {
-        for (let i = 0; i < 2; i++) {
-            const availableEdges = [];
-            for (let x = 0; x < GRID_SIZE; x++) {
-                for (let y = 0; y < GRID_SIZE; y++) {
-                    if (x < GRID_SIZE - 1 && edges[x][y].right) {
-                        availableEdges.push({x: x, y: y, type: 'right'});
-                    }
-                    if (y < GRID_SIZE - 1 && edges[x][y].bottom) {
-                        availableEdges.push({x: x, y: y, type: 'bottom'});
-                    }
-                }
-            }
-            if (availableEdges.length > 0) {
-                const edge = availableEdges[Math.floor(Math.random() * availableEdges.length)];
-                edges[edge.x][edge.y][edge.type] = false;
-            }
-        }
-    }
-    
     gameOver = false;
-    lastCapturePos = null;
+    redTurn = true;  // Red always starts
+    document.getElementById('message').textContent = '';
+    initializeEdges();
+    initializePositions();
+    updateGameTitle();
     drawGame();
 }
-function toggleMode() {
-    gameMode = gameMode === 'offense' ? 'defense' : 'offense';
-    updateGameTitle();
-    resetGame(); // This will handle the edge removal for offense mode
-}
-
 
 // Initialize game
 resetGame();
