@@ -384,16 +384,18 @@ function handleMove(key) {
 }
 
 // Add this new function to create walls instead of removing edges
+
 function addRandomWall() {
     const availableSpaces = [];
     
-    // Find all spaces where we can add a wall
+    // Find all spaces where we can add a wall (where there isn't one already)
     for (let i = 0; i < GRID_SIZE; i++) {
         for (let j = 0; j < GRID_SIZE; j++) {
-            if (i < GRID_SIZE - 1 && !edges[i][j].right) {
+            // In your game, true means no wall, false means wall exists
+            if (i < GRID_SIZE - 1 && edges[i][j].right) {
                 availableSpaces.push({x: i, y: j, type: 'right'});
             }
-            if (j < GRID_SIZE - 1 && !edges[i][j].bottom) {
+            if (j < GRID_SIZE - 1 && edges[i][j].bottom) {
                 availableSpaces.push({x: i, y: j, type: 'bottom'});
             }
         }
@@ -401,10 +403,9 @@ function addRandomWall() {
     
     if (availableSpaces.length > 0) {
         const wall = availableSpaces[Math.floor(Math.random() * availableSpaces.length)];
-        edges[wall.x][wall.y][wall.type] = true;
+        edges[wall.x][wall.y][wall.type] = false; // Set to false to create a wall
     }
 }
-
 
 function removeRandomEdge() {
     const availableEdges = [];
