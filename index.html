@@ -5,39 +5,41 @@
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Catch the Point</h1>
-        <div id="gameTitle" class="game-title">Try to catch the red point!</div>
-        <canvas id="gameCanvas"></canvas>
-        <div class="controls">
-            <button onclick="resetGame()" class="game-button">Reset Game</button>
-            <button onclick="toggleMode()" id="modeBtn" class="game-button">Offense</button>
-            <button onclick="showInstructions()" class="game-button">How to Play</button>
-        </div>
-        <div id="message"></div>
+    <h1>Catch the Point</h1>
+    <h2 id="gameTitle">Try to catch the red point!</h2>
+    <h3 id="gameSubtitle"></h3>
+    
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="button-container">
+        <button id="resetBtn" class="game-button">Reset Game</button>
+        <button id="modeBtn" class="game-button">Offense</button>
+        <button id="helpBtn" class="game-button">How to Play</button>
     </div>
 
+    <!-- Instructions Modal -->
     <div id="instructionsModal" class="modal">
         <div class="modal-content">
             <h2>How to Play</h2>
-            <p><strong>Controls:</strong></p>
-            <ul>
-                <li>Blue Point (Player 1): Arrow Keys</li>
-                <li>Red Point (Player 2): WASD Keys (Two-Player Mode)</li>
-            </ul>
-            <p><strong>Game Modes:</strong></p>
-            <ul>
-                <li>Offense Mode: Try to catch the red point! Red moves first and tries to escape.</li>
-                <li>Defense Mode: Try to escape from the red point! You move first, then red chases.</li>
-                <li>Two-Player Mode: Red uses WASD, Blue uses Arrows</li>
-            </ul>
-            <p><strong>Rules:</strong></p>
+            
+            <h3>Offense Mode</h3>
+            <p>• You control the blue point with arrow keys</p>
+            <p>• Your goal: Catch the red point by moving next to it</p>
+            <p>• Strategy: Try to trap red by cutting off escape routes</p>
+            
+            <h3>Defense Mode</h3>
+            <p>• You control the red point with arrow keys</p>
+            <p>• Your goal: Keep escaping from the blue point</p>
+            <p>• Strategy: Stay in open areas with multiple escape paths</p>
+            
+            <h3>Game Rules</h3>
             <ul>
                 <li>After each move, a random path disappears</li>
-                <li>Game ends when points connect or become separated</li>
+                <li>Game ends when points connect or are separated</li>
+                <li>Press Enter anytime to reset the game</li>
             </ul>
-            <p><strong>Strategy Tip:</strong> Plan your moves carefully! The disappearing edges can either help or hinder your progress.</p>
-            <button onclick="closeInstructions()" class="game-button">Close</button>
+            
+            <button id="closeInstructions" class="game-button">Close</button>
         </div>
     </div>
 
