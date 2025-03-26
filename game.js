@@ -248,18 +248,32 @@ function moveRedEvade() {
     for (let move of validMoves) {
         let score = 0;
         
-        // Factor 1: Path length from blue (weighted heavily)
+        // Factor 1: Path length from blue (most important)
         const pathToBlue = findShortestPath(bluePos, move);
-        score += pathToBlue ? pathToBlue.length * 4 : GRID_SIZE * 4;
+        if (pathToBlue) {
+            score += pathToBlue.length * 3;
+        } else {
+            score += GRID_SIZE * 3; // Heavily reward positions with no path to blue
+        }
         
-        // Factor 2: Position evaluation
-        score += evaluatePosition(move, true) * 2;
+        // Factor 2: Count open directions (prefer more escape routes)
+        const futureValidMoves = getValidMoves(move);
+        score += futureValidMoves.length * 2;
         
-        // Factor 3: Look ahead one move
-        const futureBluePos = findShortestPath(bluePos, move);
-        if (futureBluePos && futureBluePos.length > 1) {
-            const futureBlueMoves = getValidMoves(futureBluePos[1]);
-            score -= futureBlueMoves.length; // Penalize positions that give blue more options
+        // Factor 3: Prefer corners when blocked
+        if (futureValidMoves.length <= 2) {
+            const isCorner = (move.x === 0 || move.x === GRID_SIZE - 1) && 
+                           (move.y === 0 || move.y === GRID_SIZE - 1);
+            if (isCorner) score += 5;
+        }
+        
+        // Factor 4: Avoid getting trapped
+        const blueValidMoves = getValidMoves(bluePos);
+        for (let blueMove of blueValidMoves) {
+            const futurePathToBlue = findShortestPath(blueMove, move);
+            if (futurePathToBlue && futurePathToBlue.length < 3) {
+                score -= 10; // Heavily penalize positions that could get trapped
+            }
         }
 
         if (score > bestScore) {
@@ -302,56 +316,65 @@ function moveBlueAttack() {
 function handleMove(key) {
     if (gameOver) return;
 
-    if (gameMode === 'defense') {
-        // Defense mode: user controls red
-        const oldPos = { ...redPos };
-        switch (key) {
-            case 'ArrowLeft': if (redPos.x > 0) redPos.x--; break;
-            case 'ArrowRight': if (redPos.x < GRID_SIZE - 1) redPos.x++; break;
-            case 'ArrowUp': if (redPos.y > 0) redPos.y--; break;
-            case 'ArrowDown': if (redPos.y < GRID_SIZE - 1) redPos.y++; break;
-            default: return;
-        }
-
-        if (canMove(oldPos, redPos)) {
-            lastMoveWasBlue = false;
-            removeRandomEdge();
-            if (!checkGameOver()) {
-                moveBlueAttack();
-                lastMoveWasBlue = true;
-                removeRandomEdge();
-                checkGameOver();
+    if (gameMode === 'twoPlayer') {
+        // Handle WASD for red point
+        if (['w', 'a', 's', 'd'].includes(key.toLowerCase())) {
+            const oldPos = { ...redPos };
+            switch (key.toLowerCase()) {
+                case 'w': if (redPos.y > 0) redPos.y--; break;
+                case 's': if (redPos.y < GRID_SIZE - 1) redPos.y++; break;
+                case 'a': if (redPos.x > 0) redPos.x--; break;
+                case 'd': if (redPos.x < GRID_SIZE - 1) redPos.x++; break;
             }
-        } else {
-            redPos = oldPos;
+            if (!canMove(oldPos, redPos)) {
+                redPos = oldPos;
+            }
+        }
+        // Handle arrow keys for blue point
+        else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+            const oldPos = { ...bluePos };
+            switch (key) {
+                case 'ArrowLeft': if (bluePos.x > 0) bluePos.x--; break;
+                case 'ArrowRight': if (bluePos.x < GRID_SIZE - 1) bluePos.x++; break;
+                case 'ArrowUp': if (bluePos.y > 0) bluePos.y--; break;
+                case 'ArrowDown': if (bluePos.y < GRID_SIZE - 1) bluePos.y++; break;
+            }
+            if (!canMove(oldPos, bluePos)) {
+                bluePos = oldPos;
+            }
         }
     } else {
-        // Offense mode: user controls blue
-        const oldPos = { ...bluePos };
+        // Single player mode (existing offense/defense logic)
+        const oldPos = gameMode === 'defense' ? { ...redPos } : { ...bluePos };
         switch (key) {
-            case 'ArrowLeft': if (bluePos.x > 0) bluePos.x--; break;
-            case 'ArrowRight': if (bluePos.x < GRID_SIZE - 1) bluePos.x++; break;
-            case 'ArrowUp': if (bluePos.y > 0) bluePos.y--; break;
-            case 'ArrowDown': if (bluePos.y < GRID_SIZE - 1) bluePos.y++; break;
+            case 'ArrowLeft': if (oldPos.x > 0) oldPos.x--; break;
+            case 'ArrowRight': if (oldPos.x < GRID_SIZE - 1) oldPos.x++; break;
+            case 'ArrowUp': if (oldPos.y > 0) oldPos.y--; break;
+            case 'ArrowDown': if (oldPos.y < GRID_SIZE - 1) oldPos.y++; break;
             default: return;
         }
 
-        if (canMove(oldPos, bluePos)) {
-            lastMoveWasBlue = true;
-            removeRandomEdge();
-            if (!checkGameOver()) {
-                moveRedEvade();
-                lastMoveWasBlue = false;
-                removeRandomEdge();
-                checkGameOver();
+        if (canMove(gameMode === 'defense' ? redPos : bluePos, oldPos)) {
+            if (gameMode === 'defense') {
+                redPos = oldPos;
+                if (!checkGameOver()) {
+                    moveBlueAttack();
+                    checkGameOver();
+                }
+            } else {
+                bluePos = oldPos;
+                if (!checkGameOver()) {
+                    moveRedEvade();
+                    checkGameOver();
+                }
             }
-        } else {
-            bluePos = oldPos;
         }
     }
     
+    checkGameOver();
     drawGame();
 }
+
 
 function removeRandomEdge() {
     const availableEdges = [];
@@ -465,6 +488,7 @@ function closeInstructions() {
 }
 
 // Event Listeners
+// Also add this event listener right after your other event listeners:
 document.addEventListener('keydown', (e) => {
     e.preventDefault();
     
@@ -473,8 +497,15 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        handleMove(e.key);
+    // Handle both WASD and arrow keys in two-player mode
+    if (gameMode === 'twoPlayer') {
+        if (['w', 'a', 's', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            handleMove(e.key);
+        }
+    } else {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            handleMove(e.key);
+        }
     }
 });
 
