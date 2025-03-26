@@ -328,6 +328,8 @@ function handleMove(key) {
             }
             if (!canMove(oldPos, redPos)) {
                 redPos = oldPos;
+            } else {
+                addRandomWall(); // Add wall after successful red move
             }
         }
         // Handle arrow keys for blue point
@@ -341,6 +343,8 @@ function handleMove(key) {
             }
             if (!canMove(oldPos, bluePos)) {
                 bluePos = oldPos;
+            } else {
+                addRandomWall(); // Add wall after successful blue move
             }
         }
     } else {
@@ -357,14 +361,18 @@ function handleMove(key) {
         if (canMove(gameMode === 'defense' ? redPos : bluePos, oldPos)) {
             if (gameMode === 'defense') {
                 redPos = oldPos;
+                addRandomWall(); // Add wall after player move
                 if (!checkGameOver()) {
                     moveBlueAttack();
+                    addRandomWall(); // Add wall after AI move
                     checkGameOver();
                 }
             } else {
                 bluePos = oldPos;
+                addRandomWall(); // Add wall after player move
                 if (!checkGameOver()) {
                     moveRedEvade();
+                    addRandomWall(); // Add wall after AI move
                     checkGameOver();
                 }
             }
@@ -373,6 +381,28 @@ function handleMove(key) {
     
     checkGameOver();
     drawGame();
+}
+
+// Add this new function to create walls instead of removing edges
+function addRandomWall() {
+    const availableSpaces = [];
+    
+    // Find all spaces where we can add a wall
+    for (let i = 0; i < GRID_SIZE; i++) {
+        for (let j = 0; j < GRID_SIZE; j++) {
+            if (i < GRID_SIZE - 1 && !edges[i][j].right) {
+                availableSpaces.push({x: i, y: j, type: 'right'});
+            }
+            if (j < GRID_SIZE - 1 && !edges[i][j].bottom) {
+                availableSpaces.push({x: i, y: j, type: 'bottom'});
+            }
+        }
+    }
+    
+    if (availableSpaces.length > 0) {
+        const wall = availableSpaces[Math.floor(Math.random() * availableSpaces.length)];
+        edges[wall.x][wall.y][wall.type] = true;
+    }
 }
 
 
