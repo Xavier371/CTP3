@@ -1,525 +1,634 @@
-// Constants and Variables
-const GRID_SIZE = 10;
-const CELL_SIZE = 40;
-const CANVAS_SIZE = GRID_SIZE * CELL_SIZE;
+const GRID_SIZE = 6;
+const CELL_SIZE = 80;
+const POINT_RADIUS = 8;
+const POINT_OFFSET = CELL_SIZE / 2;
 
 let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
-canvas.width = CANVAS_SIZE;
-canvas.height = CANVAS_SIZE;
 
+canvas.width = CELL_SIZE * GRID_SIZE;
+canvas.height = CELL_SIZE * GRID_SIZE;
+
+let bluePos = { x: 0, y: GRID_SIZE - 1 };
+let redPos = { x: GRID_SIZE - 1, y: 0 };
 let edges = [];
 let gameOver = false;
-let gameMode = 'offense';
-let lastCapturePos = null;
-let lastMoveWasBlue = false;
+let gameMode = 'offense'; // 'offense', 'defense', or 'twoPlayer'
+let redTurn = true; // Red always moves first
 
-let bluePos = {
-    x: 0,
-    y: 0
-};
+function updateGameTitle() {
+    const title = document.getElementById('gameTitle');
+    if (gameMode === 'offense') {
+        title.innerHTML = 'You are the <span style="color: blue">blue</span> point, try to <i>catch</i> the <span style="color: red">red</span> point';
+    } else if (gameMode === 'defense') {
+        title.innerHTML = 'You are the <span style="color: blue">blue</span> point, try to <i>evade</i> the <span style="color: red">red</span> point';
+    } else {
+        title.innerHTML = 'Two Player Mode';
+    }
+}
 
-let redPos = {
-    x: GRID_SIZE - 1,
-    y: GRID_SIZE - 1
-};
+function getRandomPosition() {
+    return {
+        x: Math.floor(Math.random() * (GRID_SIZE - 2)) + 1,
+        y: Math.floor(Math.random() * (GRID_SIZE - 2)) + 1
+    };
+}
 
-// Initialize edges
-for (let i = 0; i < GRID_SIZE; i++) {
-    edges[i] = [];
-    for (let j = 0; j < GRID_SIZE; j++) {
-        edges[i][j] = {
-            right: true,
-            bottom: true
+// Modified to handle starting positions based on game mode
+function initializePositions() {
+    if (gameMode === 'offense') {
+        // Blue starts on left, red on right
+        bluePos = {
+            x: 0,
+            y: Math.floor(Math.random() * GRID_SIZE)
+        };
+        redPos = {
+            x: GRID_SIZE - 1,
+            y: Math.floor(Math.random() * GRID_SIZE)
+        };
+    } else if (gameMode === 'defense') {
+        // Blue starts on right, red on left
+        bluePos = {
+            x: GRID_SIZE - 1,
+            y: Math.floor(Math.random() * GRID_SIZE)
+        };
+        redPos = {
+            x: 0,
+            y: Math.floor(Math.random() * GRID_SIZE)
+        };
+    } else {
+        // Two player mode - also start on opposite sides
+        // Blue on left, red on right (like offense mode)
+        bluePos = {
+            x: 0,
+            y: Math.floor(Math.random() * GRID_SIZE)
+        };
+        redPos = {
+            x: GRID_SIZE - 1,
+            y: Math.floor(Math.random() * GRID_SIZE)
         };
     }
 }
 
-function updateGameTitle() {
-    const title = document.getElementById('gameTitle');
-    const subtitle = document.getElementById('gameSubtitle');
-    const modeBtn = document.getElementById('modeBtn');
-    
-    if (gameMode === 'offense') {
-        title.textContent = 'Try to catch the red point!';
-        subtitle.textContent = '';
-        modeBtn.textContent = 'Offense';
-        modeBtn.className = 'game-button';
-    } else if (gameMode === 'defense') {
-        title.textContent = 'Try to escape from the blue point!';
-        subtitle.textContent = '';
-        modeBtn.textContent = 'Defense';
-        modeBtn.className = 'game-button defense-mode';
-    }
-}
-
-function drawGame() {
-    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-    
-    // Draw grid
-    ctx.strokeStyle = '#ccc';
-    ctx.lineWidth = 1;
-    
-    // Draw vertical lines
-    for (let i = 0; i <= GRID_SIZE; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * CELL_SIZE, 0);
-        ctx.lineTo(i * CELL_SIZE, CANVAS_SIZE);
-        ctx.stroke();
-    }
-    
-    // Draw horizontal lines
-    for (let i = 0; i <= GRID_SIZE; i++) {
-        ctx.beginPath();
-        ctx.moveTo(0, i * CELL_SIZE);
-        ctx.lineTo(CANVAS_SIZE, i * CELL_SIZE);
-        ctx.stroke();
-    }
-    
-    // Draw edges (walls)
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 3;
-    for (let i = 0; i < GRID_SIZE; i++) {
-        for (let j = 0; j < GRID_SIZE; j++) {
-            if (!edges[i][j].right && i < GRID_SIZE - 1) {
-                ctx.beginPath();
-                ctx.moveTo((i + 1) * CELL_SIZE, j * CELL_SIZE);
-                ctx.lineTo((i + 1) * CELL_SIZE, (j + 1) * CELL_SIZE);
-                ctx.stroke();
-            }
-            if (!edges[i][j].bottom && j < GRID_SIZE - 1) {
-                ctx.beginPath();
-                ctx.moveTo(i * CELL_SIZE, (j + 1) * CELL_SIZE);
-                ctx.lineTo((i + 1) * CELL_SIZE, (j + 1) * CELL_SIZE);
-                ctx.stroke();
-            }
+function initializeEdges() {
+    edges = [];
+    // Horizontal edges
+    for (let y = 0; y < GRID_SIZE; y++) {
+        for (let x = 0; x < GRID_SIZE - 1; x++) {
+            edges.push({
+                x1: x, y1: y,
+                x2: x + 1, y2: y,
+                active: true
+            });
         }
     }
-    
-    // Draw points
-    const radius = CELL_SIZE / 3;
-    
-    // Draw blue point
-    ctx.beginPath();
-    ctx.arc(
-        bluePos.x * CELL_SIZE + CELL_SIZE / 2,
-        bluePos.y * CELL_SIZE + CELL_SIZE / 2,
-        radius,
-        0,
-        2 * Math.PI
-    );
-    ctx.fillStyle = 'blue';
-    ctx.fill();
-    
-    // Draw red point
-    ctx.beginPath();
-    ctx.arc(
-        redPos.x * CELL_SIZE + CELL_SIZE / 2,
-        redPos.y * CELL_SIZE + CELL_SIZE / 2,
-        radius,
-        0,
-        2 * Math.PI
-    );
-    ctx.fillStyle = 'red';
-    ctx.fill();
+    // Vertical edges
+    for (let x = 0; x < GRID_SIZE; x++) {
+        for (let y = 0; y < GRID_SIZE - 1; y++) {
+            edges.push({
+                x1: x, y1: y,
+                x2: x, y2: y + 1,
+                active: true
+            });
+        }
+    }
+    // Remove two random edges at start
+    removeInitialEdges();
+}
 
-    // Draw purple capture point if applicable
-    if (lastCapturePos) {
+function removeInitialEdges() {
+    let internalEdges = edges.filter(edge => {
+        // Check if edge is internal (not on the border)
+        return !(edge.x1 === 0 || edge.x1 === GRID_SIZE - 1 || 
+                edge.x2 === 0 || edge.x2 === GRID_SIZE - 1 ||
+                edge.y1 === 0 || edge.y1 === GRID_SIZE - 1 || 
+                edge.y2 === 0 || edge.y2 === GRID_SIZE - 1);
+    });
+    
+    // Remove three random internal edges
+    for (let i = 0; i < 3; i++) {
+        if (internalEdges.length > 0) {
+            const randomIndex = Math.floor(Math.random() * internalEdges.length);
+            const selectedEdge = internalEdges[randomIndex];
+            
+            // Find and deactivate the edge in the main edges array
+            const mainEdgeIndex = edges.findIndex(edge => 
+                edge.x1 === selectedEdge.x1 && 
+                edge.y1 === selectedEdge.y1 && 
+                edge.x2 === selectedEdge.x2 && 
+                edge.y2 === selectedEdge.y2
+            );
+            
+            if (mainEdgeIndex !== -1) {
+                edges[mainEdgeIndex].active = false;
+            }
+            
+            // Remove the selected edge from internalEdges
+            internalEdges.splice(randomIndex, 1);
+        }
+    }
+}
+function drawGame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw edges
+    edges.forEach(edge => {
+        if (edge.active) {
+            ctx.beginPath();
+            ctx.moveTo(edge.x1 * CELL_SIZE + POINT_OFFSET, edge.y1 * CELL_SIZE + POINT_OFFSET);
+            ctx.lineTo(edge.x2 * CELL_SIZE + POINT_OFFSET, edge.y2 * CELL_SIZE + POINT_OFFSET);
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+    });
+
+    const drawPoint = (pos, color) => {
         ctx.beginPath();
         ctx.arc(
-            lastCapturePos.x * CELL_SIZE + CELL_SIZE / 2,
-            lastCapturePos.y * CELL_SIZE + CELL_SIZE / 2,
-            radius,
+            pos.x * CELL_SIZE + POINT_OFFSET,
+            pos.y * CELL_SIZE + POINT_OFFSET,
+            POINT_RADIUS,
             0,
-            2 * Math.PI
+            Math.PI * 2
         );
-        ctx.fillStyle = 'purple';
+        ctx.fillStyle = color;
         ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    };
+
+    if ((gameOver && document.getElementById('message').textContent.includes('Caught')) || 
+        (gameMode === 'twoPlayer' && bluePos.x === redPos.x && bluePos.y === redPos.y)) {
+        // Show purple point when:
+        // 1. Game ends by catching/crossing in single player modes
+        // 2. Points overlap in two player mode
+        drawPoint(gameMode === 'defense' ? redPos : bluePos, '#8A2BE2');
+    } else {
+        // All other cases, show both points normally
+        drawPoint(redPos, 'red');
+        drawPoint(bluePos, 'blue');
     }
 }
 
-function areAdjacent(pos1, pos2) {
-    return (Math.abs(pos1.x - pos2.x) === 1 && pos1.y === pos2.y) ||
-           (Math.abs(pos1.y - pos2.y) === 1 && pos1.x === pos2.x);
+function getDistance(pos1, pos2) {
+    const dx = pos1.x - pos2.x;
+    const dy = pos1.y - pos2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function isEdgeBetweenPoints(edge, pos1, pos2) {
+    return (
+        (edge.x1 === pos1.x && edge.y1 === pos1.y && edge.x2 === pos2.x && edge.y2 === pos2.y) ||
+        (edge.x2 === pos1.x && edge.y2 === pos1.y && edge.x1 === pos2.x && edge.y1 === pos2.y)
+    );
+}
+
+function removeRandomEdge() {
+    const activeEdges = edges.filter(edge => edge.active);
+    if (activeEdges.length > 0) {
+        const edge = activeEdges[Math.floor(Math.random() * activeEdges.length)];
+        edge.active = false;
+        return true;
+    }
+    return false;
 }
 
 function canMove(from, to) {
-    if (from.x === to.x && from.y === to.y) return false;
-    if (!areAdjacent(from, to)) return false;
-
-    if (from.x === to.x) {
-        // Vertical movement
-        const minY = Math.min(from.y, to.y);
-        return edges[from.x][minY].bottom;
-    } else {
-        // Horizontal movement
-        const minX = Math.min(from.x, to.x);
-        return edges[minX][from.y].right;
-    }
+    return edges.some(edge => 
+        edge.active && 
+        ((edge.x1 === from.x && edge.y1 === from.y && edge.x2 === to.x && edge.y2 === to.y) ||
+         (edge.x2 === from.x && edge.y2 === from.y && edge.x1 === to.x && edge.y1 === to.y))
+    );
 }
 
 function getValidMoves(pos) {
     const moves = [];
     const directions = [
-        {x: -1, y: 0}, // left
-        {x: 1, y: 0},  // right
-        {x: 0, y: -1}, // up
-        {x: 0, y: 1}   // down
+        { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
+        { dx: 0, dy: -1 }, { dx: 0, dy: 1 }
     ];
 
-    for (let dir of directions) {
-        const newPos = {
-            x: pos.x + dir.x,
-            y: pos.y + dir.y
-        };
-
-        if (newPos.x >= 0 && newPos.x < GRID_SIZE &&
-            newPos.y >= 0 && newPos.y < GRID_SIZE &&
+    directions.forEach(dir => {
+        const newPos = { x: pos.x + dir.dx, y: pos.y + dir.dy };
+        if (newPos.x >= 0 && newPos.x < GRID_SIZE && 
+            newPos.y >= 0 && newPos.y < GRID_SIZE && 
             canMove(pos, newPos)) {
             moves.push(newPos);
         }
-    }
-
+    });
     return moves;
 }
 
-function findShortestPath(start, target) {
-    const queue = [[start]];
+function findShortestPath(start, end) {
     const visited = new Set();
-    visited.add(`${start.x},${start.y}`);
-
+    const queue = [[start]];
+    
     while (queue.length > 0) {
         const path = queue.shift();
         const current = path[path.length - 1];
-
-        if (current.x === target.x && current.y === target.y) {
-            return path;
-        }
-
-        const validMoves = getValidMoves(current);
-        for (let move of validMoves) {
-            const key = `${move.x},${move.y}`;
-            if (!visited.has(key)) {
-                visited.add(key);
-                const newPath = [...path, move];
-                queue.push(newPath);
-            }
-        }
-    }
-
-    return null;
-}
-
-function evaluatePosition(pos, isRed) {
-    let score = 0;
-    
-    // Count available moves (mobility)
-    const validMoves = getValidMoves(pos);
-    score += validMoves.length * 2;
-    
-    // Evaluate distance from center (red prefers edges, blue prefers center)
-    const centerDist = Math.abs(pos.x - GRID_SIZE/2) + Math.abs(pos.y - GRID_SIZE/2);
-    score += isRed ? centerDist : -centerDist;
-    
-    // Count surrounding edges (red prefers fewer, blue prefers more)
-    let surroundingEdges = 0;
-    [-1, 0, 1].forEach(dx => {
-        [-1, 0, 1].forEach(dy => {
-            const x = pos.x + dx;
-            const y = pos.y + dy;
-            if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
-                if (x < GRID_SIZE - 1 && edges[x][y].right) surroundingEdges++;
-                if (y < GRID_SIZE - 1 && edges[x][y].bottom) surroundingEdges++;
+        const key = `${current.x},${current.y}`;
+        
+        if (current.x === end.x && current.y === end.y) return path;
+        if (visited.has(key)) continue;
+        
+        visited.add(key);
+        const moves = getValidMoves(current);
+        moves.forEach(move => {
+            if (!visited.has(`${move.x},${move.y}`)) {
+                queue.push([...path, move]);
             }
         });
-    });
-    score += isRed ? -surroundingEdges : surroundingEdges;
+    }
     
-    return score;
+    return null;
+}
+// Add these constants at the top with your other constants
+const ATTACK_FORCE = 2;
+const EVADE_FORCE = 3;
+
+function checkCrossPath(oldBlue, newBlue, oldRed, newRed) {
+    // Direct capture
+    if (newBlue.x === newRed.x && newBlue.y === newRed.y) return true;
+
+    // Cross over capture (swap positions)
+    if (oldBlue.x === newRed.x && oldBlue.y === newRed.y &&
+        oldRed.x === newBlue.x && oldRed.y === newBlue.y) return true;
+
+    return false;
+}
+
+function moveRedAttack() {
+    const path = findShortestPath(redPos, bluePos);
+    if (path && path.length >= 2) {
+        redPos = path[1]; // Take the first step on the real shortest path
+        return true;
+    }
+    return false; // Red is trapped
+}
+
+function evaluatePosition(pos, depth = 0, maxDepth = 2) {
+    // Base case: if we've reached max depth, just return the current path length
+    if (depth >= maxDepth) {
+        const path = findShortestPath(bluePos, pos);
+        return path ? path.length - 1 : 0;
+    }
+
+    // Calculate current path length
+    const currentPath = findShortestPath(bluePos, pos);
+    if (!currentPath) return 0; // If no path exists, this is a bad position
+    const currentMinMoves = currentPath.length - 1;
+
+    // Get all possible moves from this position
+    const validMoves = getValidMoves(pos);
+    if (validMoves.length === 0) return 0; // Dead end
+
+    // For each possible move, evaluate the best future position
+    let bestFutureMoves = 0;
+    for (const move of validMoves) {
+        // Recursively evaluate future positions
+        const futureMoves = evaluatePosition(move, depth + 1, maxDepth);
+        bestFutureMoves = Math.max(bestFutureMoves, futureMoves);
+    }
+
+    // Return the minimum of current moves and best future moves
+    return Math.min(currentMinMoves, bestFutureMoves);
 }
 
 function moveRedEvade() {
     const validMoves = getValidMoves(redPos);
-    if (validMoves.length === 0) return;
+    if (validMoves.length === 0) return false;
 
-    let bestMove = validMoves[0];
-    let bestScore = -Infinity;
+    // Calculate current minimum path length
+    const currentPath = findShortestPath(bluePos, redPos);
+    if (!currentPath) return false; // If no path exists, we're trapped
+    const currentMinMoves = currentPath.length - 1;
 
-    for (let move of validMoves) {
-        let score = 0;
-        
-        // Factor 1: Path length from blue (most important)
-        const pathToBlue = findShortestPath(bluePos, move);
-        if (pathToBlue) {
-            score += pathToBlue.length * 3;
-        } else {
-            score += GRID_SIZE * 3; // Heavily reward positions with no path to blue
-        }
-        
-        // Factor 2: Count open directions (prefer more escape routes)
+    // Score each potential move
+    const scoredMoves = validMoves.map(move => {
+        // Calculate immediate path length
+        const pathToMove = findShortestPath(bluePos, move);
+        if (!pathToMove) return { move, score: -1 }; // Invalid move
+        const immediateMoves = pathToMove.length - 1;
+
+        // Evaluate future positions
+        const futureMoves = evaluatePosition(move);
+
+        // Calculate strategic value of the position
         const futureValidMoves = getValidMoves(move);
-        score += futureValidMoves.length * 2;
-        
-        // Factor 3: Prefer corners when blocked
-        if (futureValidMoves.length <= 2) {
-            const isCorner = (move.x === 0 || move.x === GRID_SIZE - 1) && 
-                           (move.y === 0 || move.y === GRID_SIZE - 1);
-            if (isCorner) score += 5;
-        }
-        
-        // Factor 4: Avoid getting trapped
-        const blueValidMoves = getValidMoves(bluePos);
-        for (let blueMove of blueValidMoves) {
-            const futurePathToBlue = findShortestPath(blueMove, move);
-            if (futurePathToBlue && futurePathToBlue.length < 3) {
-                score -= 10; // Heavily penalize positions that could get trapped
-            }
-        }
+        const strategicValue = futureValidMoves.length;
 
-        if (score > bestScore) {
-            bestScore = score;
-            bestMove = move;
+        // Score based on:
+        // 1. Immediate moves to catch (weighted highest)
+        // 2. Future moves to catch (weighted second)
+        // 3. Strategic value of the position (weighted lowest)
+        const score = (immediateMoves * 4) + (futureMoves * 3) + strategicValue;
+
+        return {
+            move,
+            score,
+            immediateMoves,
+            futureMoves,
+            strategicValue
+        };
+    }).filter(move => move.score >= 0); // Filter out invalid moves
+
+    // Sort moves by score in descending order
+    scoredMoves.sort((a, b) => b.score - a.score);
+
+    // Find the best move that maximizes both immediate and future moves
+    let bestMove = null;
+    let bestScore = -1;
+
+    for (const scoredMove of scoredMoves) {
+        // Skip moves that lead to dead ends
+        if (getValidMoves(scoredMove.move).length === 0) continue;
+
+        // If this move increases or maintains our distance, it's a good candidate
+        if (scoredMove.immediateMoves >= currentMinMoves || 
+            scoredMove.futureMoves >= currentMinMoves) {
+            bestMove = scoredMove.move;
+            bestScore = scoredMove.score;
+            break;
         }
     }
-    redPos = bestMove;
+
+    // If we found a good move, use it
+    if (bestMove) {
+        redPos = bestMove;
+        return true;
+    }
+
+    // If no move increases distance, use the one with the highest score
+    if (scoredMoves.length > 0) {
+        // Find the move with the highest immediate moves to catch
+        const bestScoredMove = scoredMoves.reduce((best, current) => 
+            current.immediateMoves > best.immediateMoves ? current : best
+        );
+        redPos = bestScoredMove.move;
+        return true;
+    }
+
+    return false;
 }
 
-function moveBlueAttack() {
-    const validMoves = getValidMoves(bluePos);
-    if (validMoves.length === 0) return;
+// --- FINALIZED moveRedAttack() ---
 
-    let bestMove = validMoves[0];
-    let bestScore = -Infinity;
 
-    for (let move of validMoves) {
-        let score = 0;
+// Helper function for evade
+function findPathToBorder(pos) {
+    const visited = new Set();
+    const queue = [[pos]];
+    
+    while (queue.length > 0) {
+        const path = queue.shift();
+        const current = path[path.length - 1];
         
-        // Factor 1: Path length to red (primary goal)
-        const pathToRed = findShortestPath(move, redPos);
-        score -= pathToRed ? pathToRed.length * 3 : GRID_SIZE * 3;
-        
-        // Factor 2: Position evaluation
-        score += evaluatePosition(move, false) * 2;
-        
-        // Factor 3: Cut off escape routes
-        const redEscapeRoutes = getValidMoves(redPos);
-        score -= redEscapeRoutes.length * 2;
-
-        if (score > bestScore) {
-            bestScore = score;
-            bestMove = move;
+        if (current.x === 0 || current.x === GRID_SIZE - 1 || 
+            current.y === 0 || current.y === GRID_SIZE - 1) {
+            return path;
         }
+        
+        const key = `${current.x},${current.y}`;
+        if (visited.has(key)) continue;
+        
+        visited.add(key);
+        const moves = getValidMoves(current);
+        moves.forEach(move => {
+            if (!visited.has(`${move.x},${move.y}`)) {
+                queue.push([...path, move]);
+            }
+        });
     }
-    bluePos = bestMove;
+    
+    return null;
+}
+
+function isMobileDevice() {
+    return (window.innerWidth <= 768) || ('ontouchstart' in window);
+} 
+
+function initializeMobileControls() {
+    const redControls = {
+        'up-btn': 'w',
+        'down-btn': 's',
+        'left-btn': 'a',
+        'right-btn': 'd'
+    };
+
+    const blueControls = {
+        'up-btn': 'ArrowUp',
+        'down-btn': 'ArrowDown',
+        'left-btn': 'ArrowLeft',
+        'right-btn': 'ArrowRight'
+    };
+
+    for (const [className, _] of Object.entries(redControls)) {
+        document.querySelector(`.${className}`).addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent zoom
+            const key = gameMode === 'twoPlayer' && redTurn ? 
+                redControls[className] : blueControls[className];
+            handleMove(key);
+            updateMobileButtonColors();
+        });
+    }
+}
+
+// Try to lock orientation to landscape on first user interaction (supported browsers only)
+let attemptedOrientationLock = false;
+async function tryLockLandscape() {
+    if (attemptedOrientationLock) return;
+    attemptedOrientationLock = true;
+    try {
+        if (screen.orientation && screen.orientation.lock) {
+            await screen.orientation.lock('landscape');
+        }
+    } catch (e) {
+        // Silently ignore; we'll fall back to overlay message
+    }
+}
+
+// Attach once to the first tap/click/keydown
+['click', 'touchstart', 'keydown'].forEach(evt => {
+    window.addEventListener(evt, tryLockLandscape, { once: true, passive: true });
+});
+
+function updateMobileButtonColors() {
+    if (!isMobileDevice()) return;
+    
+    const buttons = document.querySelectorAll('.mobile-btn');
+    if (gameMode === 'twoPlayer') {
+        const color = redTurn ? '#FF4444' : '#4169E1';
+        buttons.forEach(btn => {
+            btn.style.backgroundColor = color;
+        });
+    } else {
+        buttons.forEach(btn => {
+            btn.style.backgroundColor = '#4169E1';
+        });
+    }
+}
+
+// Add this to prevent any touch zooming
+document.addEventListener('touchmove', function(e) {
+    if (e.touches.length > 1) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+
+function checkGameOver() {
+    if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
+        gameOver = true;
+        if (gameMode === 'offense') {
+            document.getElementById('message').textContent = 'Blue Wins - Points are joined';
+        } else if (gameMode === 'defense') {
+            document.getElementById('message').textContent = 'Red Wins - Points are joined';
+        } else {
+            document.getElementById('message').textContent = 'Blue Wins - Points are joined';
+        }
+        return true;
+    }
+    
+    const path = findShortestPath(bluePos, redPos);
+    if (!path) {
+        gameOver = true;
+        if (gameMode === 'offense') {
+            document.getElementById('message').textContent = 'Red Wins - Points are separated';
+        } else if (gameMode === 'defense') {
+            document.getElementById('message').textContent = 'Blue Wins - Points are separated';
+        } else {
+            document.getElementById('message').textContent = 'Red Wins - Points are separated';
+        }
+        return true;
+    }
+    
+    return false;
 }
 
 function handleMove(key) {
     if (gameOver) return;
 
-    if (gameMode === 'twoPlayer') {
-        // Handle WASD for red point
-        if (['w', 'a', 's', 'd'].includes(key.toLowerCase())) {
+    if (gameMode !== 'twoPlayer') {
+        const oldBlue = { ...bluePos };
+        let proposedBlue = { ...bluePos };
+
+        switch (key) {
+            case 'ArrowLeft': if (bluePos.x > 0) proposedBlue.x--; break;
+            case 'ArrowRight': if (bluePos.x < GRID_SIZE - 1) proposedBlue.x++; break;
+            case 'ArrowUp': if (bluePos.y > 0) proposedBlue.y--; break;
+            case 'ArrowDown': if (bluePos.y < GRID_SIZE - 1) proposedBlue.y++; break;
+            default: return;
+        }
+
+        if (!canMove(oldBlue, proposedBlue)) return;
+
+        // Pre-move, don't commit yet
+        const oldRed = { ...redPos };
+
+        if (gameMode === 'offense') {
+            moveRedEvade();
+        } else {
+            moveRedAttack();
+        }
+
+        const proposedRed = { ...redPos };
+        bluePos = proposedBlue;
+        redPos = proposedRed;
+
+        // Check for capture
+        if (checkCrossPath(oldBlue, bluePos, oldRed, redPos)) {
+            gameOver = true;
+            if (gameMode === 'defense') {
+                document.getElementById('message').textContent = 'Red Wins - Caught Blue!';
+            } else {
+                document.getElementById('message').textContent = 'Blue Wins - Caught Red!';
+            }
+            drawGame();
+            return;
+        }
+
+        // Remove two random edges after both players move
+        removeRandomEdge();
+        removeRandomEdge();
+
+        if (checkGameOver()) {
+            drawGame();
+            return;
+        }
+
+        drawGame();
+    } else {
+        // ✅ Leave 2P mode unchanged
+        if (redTurn) {
             const oldPos = { ...redPos };
             switch (key.toLowerCase()) {
                 case 'w': if (redPos.y > 0) redPos.y--; break;
                 case 's': if (redPos.y < GRID_SIZE - 1) redPos.y++; break;
                 case 'a': if (redPos.x > 0) redPos.x--; break;
                 case 'd': if (redPos.x < GRID_SIZE - 1) redPos.x++; break;
+                default: return;
             }
-            if (!canMove(oldPos, redPos)) {
-                redPos = oldPos;
-            } else {
-                addRandomWall(); // Add wall after successful red move
-            }
-        }
-        // Handle arrow keys for blue point
-        else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+            if (!canMove(oldPos, redPos)) redPos = oldPos; else redTurn = false;
+        } else {
             const oldPos = { ...bluePos };
             switch (key) {
                 case 'ArrowLeft': if (bluePos.x > 0) bluePos.x--; break;
                 case 'ArrowRight': if (bluePos.x < GRID_SIZE - 1) bluePos.x++; break;
                 case 'ArrowUp': if (bluePos.y > 0) bluePos.y--; break;
                 case 'ArrowDown': if (bluePos.y < GRID_SIZE - 1) bluePos.y++; break;
+                default: return;
             }
-            if (!canMove(oldPos, bluePos)) {
-                bluePos = oldPos;
-            } else {
-                addRandomWall(); // Add wall after successful blue move
+            if (!canMove(oldPos, bluePos)) bluePos = oldPos;
+            else {
+                redTurn = true;
+                removeRandomEdge();
+                removeRandomEdge();
             }
-        }
-    } else {
-        // Single player mode (existing offense/defense logic)
-        const oldPos = gameMode === 'defense' ? { ...redPos } : { ...bluePos };
-        switch (key) {
-            case 'ArrowLeft': if (oldPos.x > 0) oldPos.x--; break;
-            case 'ArrowRight': if (oldPos.x < GRID_SIZE - 1) oldPos.x++; break;
-            case 'ArrowUp': if (oldPos.y > 0) oldPos.y--; break;
-            case 'ArrowDown': if (oldPos.y < GRID_SIZE - 1) oldPos.y++; break;
-            default: return;
         }
 
-        if (canMove(gameMode === 'defense' ? redPos : bluePos, oldPos)) {
-            if (gameMode === 'defense') {
-                redPos = oldPos;
-                addRandomWall(); // Add wall after player move
-                if (!checkGameOver()) {
-                    moveBlueAttack();
-                    addRandomWall(); // Add wall after AI move
-                    checkGameOver();
-                }
-            } else {
-                bluePos = oldPos;
-                addRandomWall(); // Add wall after player move
-                if (!checkGameOver()) {
-                    moveRedEvade();
-                    addRandomWall(); // Add wall after AI move
-                    checkGameOver();
-                }
-            }
+        if (checkGameOver()) {
+            drawGame();
+            return;
         }
-    }
-    
-    checkGameOver();
-    drawGame();
-}
 
-// Add this new function to create walls instead of removing edges
-
-function addRandomWall() {
-    const availableSpaces = [];
-    
-    // Find all spaces where we can add a wall (where there isn't one already)
-    for (let i = 0; i < GRID_SIZE; i++) {
-        for (let j = 0; j < GRID_SIZE; j++) {
-            // In your game, true means no wall, false means wall exists
-            if (i < GRID_SIZE - 1 && edges[i][j].right) {
-                availableSpaces.push({x: i, y: j, type: 'right'});
-            }
-            if (j < GRID_SIZE - 1 && edges[i][j].bottom) {
-                availableSpaces.push({x: i, y: j, type: 'bottom'});
-            }
-        }
+        drawGame();
     }
-    
-    if (availableSpaces.length > 0) {
-        const wall = availableSpaces[Math.floor(Math.random() * availableSpaces.length)];
-        edges[wall.x][wall.y][wall.type] = false; // Set to false to create a wall
-    }
-}
-
-function removeRandomEdge() {
-    const availableEdges = [];
-    const centerX = (GRID_SIZE - 1) / 2;
-    const centerY = (GRID_SIZE - 1) / 2;
-    
-    for (let i = 0; i < GRID_SIZE; i++) {
-        for (let j = 0; j < GRID_SIZE; j++) {
-            // Calculate center bias (0 to 1, where 1 is most central)
-            const distanceFromCenter = 1 - (Math.abs(i - centerX) + Math.abs(j - centerY)) / (GRID_SIZE - 1);
-            const weight = Math.floor(distanceFromCenter * 2) + 1;
-            
-            if (i < GRID_SIZE - 1 && edges[i][j].right) {
-                for (let w = 0; w < weight; w++) {
-                    availableEdges.push({x: i, y: j, type: 'right'});
-                }
-            }
-            if (j < GRID_SIZE - 1 && edges[i][j].bottom) {
-                for (let w = 0; w < weight; w++) {
-                    availableEdges.push({x: i, y: j, type: 'bottom'});
-                }
-            }
-        }
-    }
-    
-    if (availableEdges.length > 0) {
-        const edge = availableEdges[Math.floor(Math.random() * availableEdges.length)];
-        edges[edge.x][edge.y][edge.type] = false;
-    }
-}
-
-function checkGameOver() {
-    if (areAdjacent(bluePos, redPos) && canMove(bluePos, redPos)) {
-        // Only end game if red has no valid moves to escape
-        if (gameMode === 'offense' && !lastMoveWasBlue) {
-            const validMoves = getValidMoves(redPos);
-            if (validMoves.length > 0) {
-                return false; // Red can still escape
-            }
-        }
-        gameOver = true;
-        lastCapturePos = {...redPos};
-        setTimeout(() => alert(gameMode === 'offense' ? 
-            "Blue Wins - Points are joined!" : 
-            "Blue Wins - Red is captured!"), 100);
-        return true;
-    }
-    return false;
-}
-
-function resetGame() {
-    canvas = document.getElementById('gameCanvas');
-    ctx = canvas.getContext('2d');
-    canvas.width = CANVAS_SIZE;
-    canvas.height = CANVAS_SIZE;
-    
-    // Random position on top row for blue
-    bluePos = {
-        x: Math.floor(Math.random() * GRID_SIZE),
-        y: 0
-    };
-    
-    // Random position on bottom row for red
-    redPos = {
-        x: Math.floor(Math.random() * GRID_SIZE),
-        y: GRID_SIZE - 1
-    };
-    
-    // Ensure minimum starting distance
-    while (Math.abs(bluePos.x - redPos.x) < Math.floor(GRID_SIZE * 0.5)) {
-        redPos.x = Math.floor(Math.random() * GRID_SIZE);
-    }
-    
-    // Reset edges
-    for (let i = 0; i < GRID_SIZE; i++) {
-        edges[i] = [];
-        for (let j = 0; j < GRID_SIZE; j++) {
-            edges[i][j] = {
-                right: true,
-                bottom: true
-            };
-        }
-    }
-    
-    // Remove more initial edges in offense mode for balance
-    if (gameMode === 'offense') {
-        const initialEdges = 3 + Math.floor(Math.random() * 2);
-        for (let i = 0; i < initialEdges; i++) {
-            removeRandomEdge();
-        }
-    }
-    
-    gameOver = false;
-    lastCapturePos = null;
-    lastMoveWasBlue = false;
-    drawGame();
 }
 
 function toggleMode() {
-    gameMode = gameMode === 'offense' ? 'defense' : 'offense';
-    updateGameTitle();
+    if (gameMode === 'offense') {
+        gameMode = 'defense';
+        document.getElementById('modeBtn').textContent = 'Defense';
+    } else if (gameMode === 'defense') {
+        gameMode = 'twoPlayer';
+        document.getElementById('modeBtn').textContent = 'Two Player';
+    } else {
+        gameMode = 'offense';
+        document.getElementById('modeBtn').textContent = 'Offense';
+    }
     resetGame();
 }
 
 function showInstructions() {
-    document.getElementById('instructionsModal').style.display = 'block';
+    const modal = document.getElementById('instructionsModal');
+    modal.style.display = "block";
 }
 
 function closeInstructions() {
-    document.getElementById('instructionsModal').style.display = 'none';
+    const modal = document.getElementById('instructionsModal');
+    modal.style.display = "none";
 }
 
-// Event Listeners
-// Also add this event listener right after your other event listeners:
+window.onclick = function(event) {
+    const modal = document.getElementById('instructionsModal');
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+// Updated event listener to include Enter key reset
 document.addEventListener('keydown', (e) => {
     e.preventDefault();
     
@@ -527,34 +636,76 @@ document.addEventListener('keydown', (e) => {
         resetGame();
         return;
     }
-
-    // Handle both WASD and arrow keys in two-player mode
+    
     if (gameMode === 'twoPlayer') {
-        if (['w', 'a', 's', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        if (redTurn && ['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
+            handleMove(e.key);
+        } else if (!redTurn && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
             handleMove(e.key);
         }
     } else {
+        // Single player mode - only arrow keys
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
             handleMove(e.key);
         }
     }
 });
 
-document.getElementById('resetBtn').addEventListener('click', resetGame);
-document.getElementById('modeBtn').addEventListener('click', toggleMode);
-document.getElementById('helpBtn').addEventListener('click', showInstructions);
-document.getElementById('closeInstructions').addEventListener('click', closeInstructions);
+function resetGame() {
+    gameOver = false;
+    redTurn = true;  // Red always starts
+    document.getElementById('message').textContent = '';
+    
+    // Initialize edges first (includes removing two random edges)
+    initializeEdges();
+    
+    // Initialize positions based on game mode
+    initializePositions();
+    
+    updateGameTitle();
+    drawGame();
+    updateMobileButtonColors();
 
-// Close modals when clicking outside
-window.addEventListener('click', (e) => {
-    const instructionsModal = document.getElementById('instructionsModal');
-    if (e.target === instructionsModal) {
-        instructionsModal.style.display = 'none';
-    }
-});
+}
 
 // Initialize game
-window.onload = function() {
-    updateGameTitle();
-    resetGame();
+resetGame();
+
+// Initialize mobile controls if needed
+if (isMobileDevice()) {
+    initializeMobileControls();
+    updateMobileButtonColors();
 }
+
+// Add landscape mode handling
+function handleOrientation() {
+    if (isMobileDevice()) {
+        const isLandscape = (() => {
+            if (screen.orientation && typeof screen.orientation.type === 'string') {
+                return screen.orientation.type.startsWith('landscape');
+            }
+            // Fallbacks
+            if (typeof window.orientation === 'number') {
+                return Math.abs(window.orientation) === 90;
+            }
+            return window.innerWidth > window.innerHeight;
+        })();
+        
+        if (!isLandscape) {
+            document.getElementById('orientationMessage').style.display = 'block';
+            const container = document.getElementById('gameContainer');
+            if (container) container.style.display = 'none';
+        } else {
+            document.getElementById('orientationMessage').style.display = 'none';
+            const container = document.getElementById('gameContainer');
+            if (container) container.style.display = 'block';
+        }
+    }
+}
+
+// Add event listeners for orientation changes
+window.addEventListener('orientationchange', handleOrientation);
+window.addEventListener('resize', handleOrientation);
+
+// Initialize orientation check
+handleOrientation();
