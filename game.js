@@ -36,37 +36,24 @@ function getRandomPosition() {
 
 // Modified to handle starting positions based on game mode
 function initializePositions() {
+    // Constrain both points to spawn either in the top two rows or bottom two rows
+    const useTopRows = Math.random() < 0.5;
+    const candidateRows = useTopRows ? [0, 1] : [GRID_SIZE - 2, GRID_SIZE - 1];
+    const blueRow = candidateRows[Math.floor(Math.random() * candidateRows.length)];
+    const redRow = candidateRows[Math.floor(Math.random() * candidateRows.length)];
+
     if (gameMode === 'offense') {
         // Blue starts on left, red on right
-        bluePos = {
-            x: 0,
-            y: Math.floor(Math.random() * GRID_SIZE)
-        };
-        redPos = {
-            x: GRID_SIZE - 1,
-            y: Math.floor(Math.random() * GRID_SIZE)
-        };
+        bluePos = { x: 0, y: blueRow };
+        redPos = { x: GRID_SIZE - 1, y: redRow };
     } else if (gameMode === 'defense') {
         // Blue starts on right, red on left
-        bluePos = {
-            x: GRID_SIZE - 1,
-            y: Math.floor(Math.random() * GRID_SIZE)
-        };
-        redPos = {
-            x: 0,
-            y: Math.floor(Math.random() * GRID_SIZE)
-        };
+        bluePos = { x: GRID_SIZE - 1, y: blueRow };
+        redPos = { x: 0, y: redRow };
     } else {
-        // Two player mode - also start on opposite sides
-        // Blue on left, red on right (like offense mode)
-        bluePos = {
-            x: 0,
-            y: Math.floor(Math.random() * GRID_SIZE)
-        };
-        redPos = {
-            x: GRID_SIZE - 1,
-            y: Math.floor(Math.random() * GRID_SIZE)
-        };
+        // Two player mode - opposite sides like offense
+        bluePos = { x: 0, y: blueRow };
+        redPos = { x: GRID_SIZE - 1, y: redRow };
     }
 }
 
@@ -435,24 +422,7 @@ function initializeMobileControls() {
     }
 }
 
-// Try to lock orientation to landscape on first user interaction (supported browsers only)
-let attemptedOrientationLock = false;
-async function tryLockLandscape() {
-    if (attemptedOrientationLock) return;
-    attemptedOrientationLock = true;
-    try {
-        if (screen.orientation && screen.orientation.lock) {
-            await screen.orientation.lock('landscape');
-        }
-    } catch (e) {
-        // Silently ignore; we'll fall back to overlay message
-    }
-}
-
-// Attach once to the first tap/click/keydown
-['click', 'touchstart', 'keydown'].forEach(evt => {
-    window.addEventListener(evt, tryLockLandscape, { once: true, passive: true });
-});
+// Orientation lock removed. We render horizontally via CSS transforms on mobile.
 
 function updateMobileButtonColors() {
     if (!isMobileDevice()) return;
@@ -677,35 +647,4 @@ if (isMobileDevice()) {
     updateMobileButtonColors();
 }
 
-// Add landscape mode handling
-function handleOrientation() {
-    if (isMobileDevice()) {
-        const isLandscape = (() => {
-            if (screen.orientation && typeof screen.orientation.type === 'string') {
-                return screen.orientation.type.startsWith('landscape');
-            }
-            // Fallbacks
-            if (typeof window.orientation === 'number') {
-                return Math.abs(window.orientation) === 90;
-            }
-            return window.innerWidth > window.innerHeight;
-        })();
-        
-        if (!isLandscape) {
-            document.getElementById('orientationMessage').style.display = 'block';
-            const container = document.getElementById('gameContainer');
-            if (container) container.style.display = 'none';
-        } else {
-            document.getElementById('orientationMessage').style.display = 'none';
-            const container = document.getElementById('gameContainer');
-            if (container) container.style.display = 'block';
-        }
-    }
-}
-
-// Add event listeners for orientation changes
-window.addEventListener('orientationchange', handleOrientation);
-window.addEventListener('resize', handleOrientation);
-
-// Initialize orientation check
-handleOrientation();
+// Orientation overlay and JS handling removed; CSS handles phone layout.
