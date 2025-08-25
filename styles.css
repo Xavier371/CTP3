@@ -122,43 +122,92 @@ canvas {
     justify-content: center;
 }
 
-/* Mobile Portrait Styles */
+/* Mobile Portrait: render horizontal layout by rotating the app */
 @media (max-width: 768px) and (orientation: portrait) {
-    .container {
-        gap: 5px;
-        justify-content: flex-start;
+    html, body {
         height: 100vh;
+        overflow: hidden;
+        background-color: #0b1220;
+    }
+
+    #gameContainer {
+        transform: rotate(90deg);
+        transform-origin: center center;
+        width: 100vh;
+        height: 100vw;
+        max-width: none;
+        max-height: none;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .left-section {
+        width: 28%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+        color: #e6edf7;
     }
 
     h1 {
-        font-size: 24px;
+        font-size: 20px;
+        color: #e6edf7;
+        margin: 0;
     }
 
-    .game-title {
-        font-size: 16px;
-    }
-
+    .game-title,
     #message {
-        font-size: 16px;
+        font-size: 14px;
+        color: #a8b3cf;
+    }
+
+    .center-section {
+        width: 44%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     canvas {
-        max-width: 95vw;
+        max-width: 44vw;
         height: auto;
-        margin: 10px 0;
+        max-height: 80vh;
+        background-color: #0f172a;
+        border: 1px solid #25324d;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    }
+
+    .right-section {
+        width: 28%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 80vh;
+        padding: 0 6px;
     }
 
     .controls {
-        margin: 8px 0 15px 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin: 0;
     }
 
     .game-button {
-        padding: 10px 18px;
-        font-size: 14px;
-        border-radius: 12px;
-        background: linear-gradient(180deg, #4CAF50 0%, #3f9a44 100%);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2);
-        border: 1px solid rgba(0,0,0,0.05);
+        padding: 10px;
+        font-size: 12px;
+        border-radius: 8px;
+        background: linear-gradient(180deg, #1f6feb 0%, #265bd8 100%);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 6px 16px rgba(31,111,235,0.35);
     }
 
     .game-button:active {
@@ -166,27 +215,36 @@ canvas {
         filter: brightness(0.95);
     }
 
-    .game-button:focus-visible {
-        outline: 2px solid rgba(76, 175, 80, 0.6);
-        outline-offset: 2px;
-    }
-
     .mobile-controls {
-        display: flex;
-        margin-top: 5px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        align-items: center;
+        justify-items: center;
+        margin: 0;
     }
 
+    /* Square themed d-pad */
     .mobile-btn {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.25);
-        border: 1px solid rgba(255,255,255,0.15);
+        width: 48px;
+        height: 48px;
+        transform: none;
+        border-radius: 8px;
+        background: linear-gradient(180deg, #0ea5e9 0%, #0284c7 100%);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 8px 18px rgba(2,132,199,0.35);
+        font-size: 18px;
     }
+    .mobile-btn span { transform: none; }
+    .mobile-btn:active { transform: scale(0.97); }
 
-    .middle-row {
-        gap: 40px;
-    }
+    /* Arrange arrows in a cross inside 3x3 grid */
+    .up-btn { grid-column: 2; grid-row: 1; }
+    .left-btn { grid-column: 1; grid-row: 2; }
+    .right-btn { grid-column: 3; grid-row: 2; }
+    .down-btn { grid-column: 2; grid-row: 3; }
+    .middle-row { display: contents; }
 }
 
 /* Mobile Landscape Styles */
@@ -236,20 +294,21 @@ canvas {
     }
 
     .controls {
-        flex-direction: column;
-        align-items: center;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
-        margin-top: 25%;
+        margin: 0 0 8px 0;
     }
 
     .game-button {
-        padding: 10px 16px;
+        padding: 10px;
         font-size: 12px;
-        width: 92px;
-        border-radius: 12px;
-        background: linear-gradient(180deg, #4CAF50 0%, #3f9a44 100%);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2);
-        border: 1px solid rgba(0,0,0,0.05);
+        width: auto;
+        border-radius: 8px;
+        background: linear-gradient(180deg, #1f6feb 0%, #265bd8 100%);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 6px 16px rgba(31,111,235,0.35);
     }
 
     .game-button:active {
@@ -263,17 +322,33 @@ canvas {
     }
 
     .mobile-controls {
-        display: flex;
-        margin-bottom: 15%;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        align-items: center;
+        justify-items: center;
+        margin: 0;
     }
 
     .mobile-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.25);
-        border: 1px solid rgba(255,255,255,0.15);
+        width: 48px;
+        height: 48px;
+        transform: none;
+        border-radius: 8px;
+        background: linear-gradient(180deg, #0ea5e9 0%, #0284c7 100%);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 8px 18px rgba(2,132,199,0.35);
+        font-size: 18px;
     }
+    .mobile-btn span { transform: none; }
+    .mobile-btn:active { transform: scale(0.97); }
+
+    .up-btn { grid-column: 2; grid-row: 1; }
+    .left-btn { grid-column: 1; grid-row: 2; }
+    .right-btn { grid-column: 3; grid-row: 2; }
+    .down-btn { grid-column: 2; grid-row: 3; }
+    .middle-row { display: contents; }
 
     .middle-row {
         gap: 35px;
@@ -297,6 +372,10 @@ canvas {
     canvas {
         max-height: 90vh;
         width: auto;
+        background-color: #0f172a;
+        border: 1px solid #25324d;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.35);
     }
 }
 
