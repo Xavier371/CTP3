@@ -424,20 +424,18 @@ function initializeMobileControls() {
 
 // Orientation lock removed. We render horizontally via CSS transforms on mobile.
 
+// --- REPLACE THE EXISTING updateMobileButtonColors FUNCTION IN game.js WITH THIS ---
+
 function updateMobileButtonColors() {
     if (!isMobileDevice()) return;
     
     const buttons = document.querySelectorAll('.mobile-btn');
-    if (gameMode === 'twoPlayer') {
-        const color = redTurn ? '#FF4444' : '#4169E1';
-        buttons.forEach(btn => {
-            btn.style.backgroundColor = color;
-        });
-    } else {
-        buttons.forEach(btn => {
-            btn.style.backgroundColor = '#4169E1';
-        });
-    }
+    const blueColor = '#4169E1'; // Define the blue color
+    
+    // Always set the button color to blue
+    buttons.forEach(btn => {
+        btn.style.backgroundColor = blueColor;
+    });
 }
 
 // Add this to prevent any touch zooming
