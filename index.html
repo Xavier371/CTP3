@@ -1,48 +1,99 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Catch the Point</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Point Chase Game</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
+    <style>
+        #orientationMessage {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            text-align: center;
+            padding-top: 40%;
+            z-index: 1000;
+            font-size: 24px;
+        }
+
+        @media (min-width: 769px) {
+            #orientationMessage {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Catch the Point</h1>
-    <h2 id="gameTitle">Try to catch the red point!</h2>
-    <h3 id="gameSubtitle"></h3>
-    
-    <canvas id="gameCanvas"></canvas>
-    
-    <div class="button-container">
-        <button id="resetBtn" class="game-button">Reset Game</button>
-        <button id="modeBtn" class="game-button">Offense</button>
-        <button id="helpBtn" class="game-button">How to Play</button>
+    <div id="orientationMessage">
+        Please rotate your device to landscape mode to play
+    </div>
+    <div id="gameContainer" class="container">
+        <div class="left-section">
+            <h1>Catch the Point</h1>
+            <div id="gameTitle" class="game-title"></div>
+            <div id="message"></div>
+        </div>
+        
+        <div class="center-section">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <div class="right-section">
+            <div class="controls">
+                <button onclick="resetGame()" class="game-button">Reset</button>
+                <button onclick="toggleMode()" id="modeBtn" class="game-button">Offense</button>
+                <button onclick="showInstructions()" class="game-button">Help</button>
+            </div>
+            <div id="mobileControls" class="mobile-controls">
+                <button class="mobile-btn up-btn"><span>↑</span></button>
+                <div class="middle-row">
+                    <button class="mobile-btn left-btn"><span>←</span></button>
+                    <button class="mobile-btn right-btn"><span>→</span></button>
+                </div>
+                <button class="mobile-btn down-btn"><span>↓</span></button>
+            </div>
+        </div>
     </div>
 
-    <!-- Instructions Modal -->
     <div id="instructionsModal" class="modal">
         <div class="modal-content">
             <h2>How to Play</h2>
             
             <h3>Offense Mode</h3>
-            <p>• You control the blue point with arrow keys</p>
-            <p>• Your goal: Catch the red point by moving next to it</p>
-            <p>• Strategy: Try to trap red by cutting off escape routes</p>
-            
-            <h3>Defense Mode</h3>
-            <p>• You control the red point with arrow keys</p>
-            <p>• Your goal: Keep escaping from the blue point</p>
-            <p>• Strategy: Stay in open areas with multiple escape paths</p>
-            
-            <h3>Game Rules</h3>
             <ul>
-                <li>After each move, a random path disappears</li>
-                <li>Game ends when points connect or are separated</li>
-                <li>Press Enter anytime to reset the game</li>
+                <li>You are the blue point, trying to capture the red point</li>
+                <li>Red will try to maintain distance and find escape routes</li>
             </ul>
-            
-            <button id="closeInstructions" class="game-button">Close</button>
+
+            <h3>Defense Mode</h3>
+            <ul>
+                <li>You are the blue point, trying to evade the red point</li>
+                <li>Stay connected to multiple paths to avoid being trapped</li>
+            </ul>
+
+            <h3>Two Player Mode</h3>
+            <ul>
+                <li>On Desktop: Red uses WASD, Blue uses arrow keys</li>
+                <li>On Mobile: Buttons change color for current player's turn</li>
+                <li>Take turns trying to catch or escape each other</li>
+            </ul>
+
+            <h3>Game Basics</h3>
+            <ul>
+                <li>Each move removes one random edge</li>
+                <li>Win by either connecting points or completely separating them</li>
+                <li>Press Enter or Reset button to restart anytime</li>
+            </ul>
+
+            <button onclick="closeInstructions()" class="game-button">Close</button>
         </div>
     </div>
 
     <script src="game.js"></script>
 </body>
-</html>
+</html> 
