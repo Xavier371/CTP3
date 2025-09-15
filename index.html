@@ -76,6 +76,37 @@
         <p>This game works best in landscape mode</p>
     </div>
 
+    <script>
+        // Enhanced mobile detection
+        function detectMobile() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                           (window.innerWidth <= 768) || 
+                           ('ontouchstart' in window) ||
+                           (navigator.maxTouchPoints > 0);
+            
+            if (isMobile) {
+                document.body.classList.add('mobile-device');
+            }
+            
+            // Add orientation class
+            function updateOrientation() {
+                if (window.innerHeight > window.innerWidth) {
+                    document.body.classList.add('portrait');
+                    document.body.classList.remove('landscape');
+                } else {
+                    document.body.classList.add('landscape');
+                    document.body.classList.remove('portrait');
+                }
+            }
+            
+            updateOrientation();
+            window.addEventListener('orientationchange', updateOrientation);
+            window.addEventListener('resize', updateOrientation);
+        }
+        
+        // Run detection immediately
+        detectMobile();
+    </script>
     <script src="game.js"></script>
 </body>
 </html> 
