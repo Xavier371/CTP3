@@ -129,7 +129,7 @@ canvas {
     display: none;
 }
 
-/* Triangle buttons positioned at edges of square (default desktop sizing) */
+/* Triangle buttons positioned at edges of square */
 .up-btn {
     border-left: 20px solid transparent !important;
     border-right: 20px solid transparent !important;
@@ -235,7 +235,6 @@ canvas {
     }
 }
 
-/* Mobile Landscape Styles */
 @media (max-width: 768px) and (orientation: landscape) {
     .rotation-overlay {
         display: none;
@@ -249,21 +248,6 @@ canvas {
         padding: 10px;
         gap: 10px;
         max-width: none;
-    }
-
-    .mobile-controls { /* Will be absolutely centered in bottom half of right column */
-        position: absolute;
-        top: 75%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 100px;
-        height: 100px;
-
-        display: grid !important;
-        grid-template-columns: 1fr 25px 1fr;
-        grid-template-rows: 1fr 25px 1fr;
-        gap: 0;
-        margin: 0;
     }
 
     .left-section {
@@ -310,7 +294,6 @@ canvas {
         align-items: center;
         height: 90%;
         padding: 0 10px;
-        position: relative;
     }
 
     .controls {
@@ -340,6 +323,14 @@ canvas {
         box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
+    .mobile-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 15%;
+        gap: 20px;
+    }
+
     .mobile-btn {
         width: 0;
         height: 0;
@@ -348,56 +339,64 @@ canvas {
         cursor: pointer;
         transition: all 0.3s ease;
         -webkit-tap-highlight-color: transparent;
-        position: relative;
     }
 
     .mobile-btn:active {
         transform: scale(0.9);
     }
 
-    .mobile-btn span { display: none; }
+    .mobile-btn span {
+        display: none;
+    }
 
-    .middle-row { display: contents; }
+    .middle-row {
+        display: flex;
+        gap: 40px;
+        justify-content: center;
+    }
 
-    /* Triangle buttons - equalized sizes */
+    /* Up triangle */
     .up-btn {
-        border-top: 12px solid transparent;
-        border-bottom: 12px solid transparent;
-        border-bottom: 20px solid #1a365d;
-        grid-column: 2;
-        grid-row: 1;
-        justify-self: center;
-        align-self: end;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-bottom: 25px solid #1a365d;
     }
 
+    .up-btn:active {
+        border-bottom-color: #2c5282;
+    }
+
+    /* Down triangle */
     .down-btn {
-        border-top: 12px solid transparent;
-        border-bottom: 12px solid transparent;
-        border-top: 20px solid #1a365d;
-        grid-column: 2;
-        grid-row: 3;
-        justify-self: center;
-        align-self: start;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 25px solid #1a365d;
     }
 
+    .down-btn:active {
+        border-top-color: #2c5282;
+    }
+
+    /* Left triangle */
     .left-btn {
-        border-top: 12px solid transparent;
-        border-bottom: 12px solid transparent;
-        border-right: 20px solid #1a365d;
-        grid-column: 1;
-        grid-row: 2;
-        justify-self: end;
-        align-self: center;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        border-right: 25px solid #1a365d;
     }
 
+    .left-btn:active {
+        border-right-color: #2c5282;
+    }
+
+    /* Right triangle */
     .right-btn {
-        border-top: 12px solid transparent;
-        border-bottom: 12px solid transparent;
-        border-left: 20px solid #1a365d;
-        grid-column: 3;
-        grid-row: 2;
-        justify-self: start;
-        align-self: center;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        border-left: 25px solid #1a365d;
+    }
+
+    .right-btn:active {
+        border-left-color: #2c5282;
     }
 
     canvas {
