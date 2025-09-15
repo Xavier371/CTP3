@@ -350,22 +350,22 @@ canvas {
         justify-content: center;
     }
 
-    /* --- FIXED: make vertical and horizontal triangles exactly the same visual footprint --- */
+    /* --- Equalized but with smaller vertical arrows --- */
     :root { --triBase: 24px; --triHeight: 20px; }
 
-    /* Up triangle (15% smaller vertically) */
+    /* Up triangle (smaller) */
     .up-btn {
         border-left: calc(var(--triBase) / 2) solid transparent;
         border-right: calc(var(--triBase) / 2) solid transparent;
-        border-bottom: calc(var(--triHeight) * 0.85) solid #1a365d;
+        border-bottom: calc(var(--triHeight) * 0.8) solid #1a365d;
     }
     .up-btn:active { border-bottom-color: #2c5282; }
 
-    /* Down triangle (15% smaller vertically) */
+    /* Down triangle (smaller) */
     .down-btn {
         border-left: calc(var(--triBase) / 2) solid transparent;
         border-right: calc(var(--triBase) / 2) solid transparent;
-        border-top: calc(var(--triHeight) * 0.85) solid #1a365d;
+        border-top: calc(var(--triHeight) * 0.8) solid #1a365d;
     }
     .down-btn:active { border-top-color: #2c5282; }
 
