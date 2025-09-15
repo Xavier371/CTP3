@@ -325,11 +325,14 @@ canvas {
 
     .mobile-controls {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr 1fr;
+        gap: 15px;
         align-items: center;
         justify-items: center;
         margin: 0;
+        width: 120px;
+        height: 120px;
     }
 
     .mobile-btn {
@@ -347,36 +350,36 @@ canvas {
 
     /* Triangle buttons positioned at edges of square */
     .up-btn {
-        border-left: 20px solid transparent;
-        border-right: 20px solid transparent;
-        border-bottom: 35px solid #1a365d;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-bottom: 25px solid #1a365d;
         grid-column: 2;
         grid-row: 1;
     }
     .up-btn:active { border-bottom-color: #2c5282; }
 
     .down-btn {
-        border-left: 20px solid transparent;
-        border-right: 20px solid transparent;
-        border-top: 35px solid #1a365d;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 25px solid #1a365d;
         grid-column: 2;
         grid-row: 3;
     }
     .down-btn:active { border-top-color: #2c5282; }
 
     .left-btn {
-        border-top: 20px solid transparent;
-        border-bottom: 20px solid transparent;
-        border-right: 35px solid #1a365d;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        border-right: 25px solid #1a365d;
         grid-column: 1;
         grid-row: 2;
     }
     .left-btn:active { border-right-color: #2c5282; }
 
     .right-btn {
-        border-top: 20px solid transparent;
-        border-bottom: 20px solid transparent;
-        border-left: 35px solid #1a365d;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        border-left: 25px solid #1a365d;
         grid-column: 3;
         grid-row: 2;
     }
