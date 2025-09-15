@@ -290,7 +290,7 @@ canvas {
         width: 25%;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
         height: 90%;
         padding: 0 10px;
@@ -301,7 +301,7 @@ canvas {
         flex-direction: column;
         align-items: center;
         gap: 8px;
-        margin: 0 0 20px 0;
+        margin: 0;
     }
 
     .game-button {
@@ -327,19 +327,20 @@ canvas {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         grid-template-rows: 1fr 1fr 1fr;
-        gap: 15px;
+        gap: 20px;
         align-items: center;
         justify-items: center;
         margin: 0;
-        width: 120px;
-        height: 120px;
+        width: 100px;
+        height: 100px;
+        margin-top: auto;
     }
 
     .mobile-btn {
         width: 0;
         height: 0;
         border: none;
-        background: transparent;
+        background: transparent !important;
         cursor: pointer;
         transition: all 0.3s ease;
         -webkit-tap-highlight-color: transparent;
@@ -350,36 +351,36 @@ canvas {
 
     /* Triangle buttons positioned at edges of square */
     .up-btn {
-        border-left: 15px solid transparent;
-        border-right: 15px solid transparent;
-        border-bottom: 25px solid #1a365d;
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-bottom: 20px solid #1a365d;
         grid-column: 2;
         grid-row: 1;
     }
     .up-btn:active { border-bottom-color: #2c5282; }
 
     .down-btn {
-        border-left: 15px solid transparent;
-        border-right: 15px solid transparent;
-        border-top: 25px solid #1a365d;
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-top: 20px solid #1a365d;
         grid-column: 2;
         grid-row: 3;
     }
     .down-btn:active { border-top-color: #2c5282; }
 
     .left-btn {
-        border-top: 15px solid transparent;
-        border-bottom: 15px solid transparent;
-        border-right: 25px solid #1a365d;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-right: 20px solid #1a365d;
         grid-column: 1;
         grid-row: 2;
     }
     .left-btn:active { border-right-color: #2c5282; }
 
     .right-btn {
-        border-top: 15px solid transparent;
-        border-bottom: 15px solid transparent;
-        border-left: 25px solid #1a365d;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-left: 20px solid #1a365d;
         grid-column: 3;
         grid-row: 2;
     }
