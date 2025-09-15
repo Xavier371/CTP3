@@ -260,8 +260,8 @@ canvas {
         height: 100px;
 
         display: grid !important;
-        grid-template-columns: 1fr 25px 1fr; /* reduced middle square width */
-        grid-template-rows: 1fr 25px 1fr;    /* reduced middle square height */
+        grid-template-columns: 1fr 25px 1fr;
+        grid-template-rows: 1fr 25px 1fr;
         gap: 0;
         margin: 0;
     }
@@ -359,11 +359,11 @@ canvas {
 
     .middle-row { display: contents; }
 
-    /* Triangle buttons - sized to frame a 25x25 empty square */
+    /* Triangle buttons - equalized sizes */
     .up-btn {
-        border-left: 15px solid transparent;
-        border-right: 15px solid transparent;
-        border-bottom: 25px solid #1a365d;
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-bottom: 20px solid #1a365d;
         grid-column: 2;
         grid-row: 1;
         justify-self: center;
@@ -371,9 +371,9 @@ canvas {
     }
 
     .down-btn {
-        border-left: 15px solid transparent;
-        border-right: 15px solid transparent;
-        border-top: 25px solid #1a365d;
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-top: 20px solid #1a365d;
         grid-column: 2;
         grid-row: 3;
         justify-self: center;
@@ -381,9 +381,9 @@ canvas {
     }
 
     .left-btn {
-        border-top: 15px solid transparent;
-        border-bottom: 15px solid transparent;
-        border-right: 25px solid #1a365d;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-right: 20px solid #1a365d;
         grid-column: 1;
         grid-row: 2;
         justify-self: end;
@@ -391,9 +391,9 @@ canvas {
     }
 
     .right-btn {
-        border-top: 15px solid transparent;
-        border-bottom: 15px solid transparent;
-        border-left: 25px solid #1a365d;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-left: 20px solid #1a365d;
         grid-column: 3;
         grid-row: 2;
         justify-self: start;
