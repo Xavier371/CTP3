@@ -229,19 +229,19 @@ canvas {
     }
 
     .left-section {
-        width: 30% !important;
-        min-width: 120px !important;
+        width: 25% !important;
+        min-width: 100px !important;
         text-align: center !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
-        gap: 15px !important;
-        padding: 10px 5px !important;
+        gap: 12px !important;
+        padding: 15px 8px !important;
         overflow: visible !important;
     }
 
     .left-section h1 { 
-        font-size: 16px !important; 
+        font-size: 18px !important; 
         font-weight: bold !important; 
         margin: 0 !important; 
         line-height: 1.2 !important;
@@ -249,19 +249,19 @@ canvas {
         color: #333 !important;
     }
     .left-section .game-title { 
-        font-size: 12px !important; 
+        font-size: 14px !important; 
         margin: 0 !important; 
         line-height: 1.3 !important;
         white-space: nowrap !important;
         color: #555 !important;
     }
     .left-section #message { 
-        font-size: 12px !important; 
+        font-size: 14px !important; 
         margin: 0 !important; 
         line-height: 1.3 !important;
         white-space: nowrap !important;
         color: #666 !important;
-        min-height: 18px !important;
+        min-height: 20px !important;
     }
     
     /* Win message colors */
@@ -275,22 +275,22 @@ canvas {
     }
 
     .center-section { 
-        width: 40% !important; 
+        width: 50% !important; 
         display: flex !important; 
         align-items: center !important; 
         justify-content: center !important;
-        min-width: 150px !important;
+        min-width: 200px !important;
     }
 
     .right-section {
-        width: 30% !important;
+        width: 25% !important;
         min-width: 100px !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: space-between !important;
         align-items: center !important;
-        padding: 5px !important;
-        height: 100vh !important;
+        padding: 10px !important;
+        height: 90% !important;
         box-sizing: border-box !important;
     }
 
@@ -298,16 +298,16 @@ canvas {
         display: flex !important; 
         flex-direction: column !important; 
         align-items: center !important; 
-        gap: 8px !important;
+        gap: 12px !important;
         width: 100% !important;
-        margin-top: 10px !important;
+        margin-bottom: 15% !important;
     }
 
     .game-button {
-        padding: 6px 8px !important;
-        font-size: 10px !important;
-        width: 100% !important;
-        border-radius: 4px !important;
+        padding: 8px 12px !important;
+        font-size: 11px !important;
+        width: auto !important;
+        border-radius: 5px !important;
         background-color: #1a365d !important;
         color: white !important;
         border: none !important;
@@ -326,12 +326,12 @@ canvas {
         display: flex !important; 
         flex-direction: column !important; 
         align-items: center !important; 
-        gap: 12px !important;
-        width: 70px !important;
-        height: 70px !important;
-        margin-bottom: 20px !important;
+        gap: 15px !important;
+        width: 80px !important;
+        height: 80px !important;
+        margin-bottom: 0 !important;
         margin-left: auto !important;
-        margin-right: 10px !important;
+        margin-right: 15px !important;
         position: relative !important;
         z-index: 999 !important;
         visibility: visible !important;
