@@ -67,18 +67,21 @@ canvas {
 }
 
 .game-button {
-    background-color: #4CAF50;
+    background-color: #1a365d;
     color: white;
     padding: 12px 24px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .game-button:hover {
-    background-color: #45a049;
+    background-color: #2c5282;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 .mobile-controls {
@@ -90,30 +93,71 @@ canvas {
 }
 
 .mobile-btn {
-    width: 45px;
-    height: 45px;
-    transform: rotate(45deg);
+    width: 0;
+    height: 0;
     border: none;
-    background-color: #4169E1;
-    color: white;
-    font-size: 20px;
+    background: transparent;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: relative;
 }
 
 .mobile-btn:active {
-    transform: rotate(45deg) scale(0.95);
+    transform: scale(0.9);
 }
 
 .mobile-btn span {
-    transform: rotate(-45deg);
-    display: inline-block;
-    user-select: none;
+    display: none;
+}
+
+/* Triangle buttons positioned at edges of square */
+.up-btn {
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 35px solid #1a365d;
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.up-btn:active {
+    border-bottom-color: #2c5282;
+}
+
+.down-btn {
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 35px solid #1a365d;
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.down-btn:active {
+    border-top-color: #2c5282;
+}
+
+.left-btn {
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-right: 35px solid #1a365d;
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.left-btn:active {
+    border-right-color: #2c5282;
+}
+
+.right-btn {
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-left: 35px solid #1a365d;
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.right-btn:active {
+    border-left-color: #2c5282;
 }
 
 .middle-row {
@@ -122,10 +166,62 @@ canvas {
     justify-content: center;
 }
 
-/* --- UPDATED MOBILE STYLES START HERE --- */
+/* Phone rotation overlay */
+.rotation-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.rotation-overlay h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.rotation-overlay p {
+    font-size: 18px;
+    text-align: center;
+    margin: 0;
+}
+
+.phone-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(90deg); }
+}
 
 /* Mobile Portrait: render horizontal layout by rotating the app */
 @media (max-width: 768px) and (orientation: portrait) {
+    .rotation-overlay {
+        display: flex;
+    }
+    
+    #gameContainer {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) and (orientation: landscape) {
+    .rotation-overlay {
+        display: none;
+    }
+    
     html, body {
         height: 100vh;
         overflow: hidden;
@@ -133,7 +229,6 @@ canvas {
     }
 
     #gameContainer {
-        /* This is the key part: rotate the container to force landscape view */
         transform: rotate(90deg);
         transform-origin: center center;
         width: 100vh;
@@ -154,18 +249,67 @@ canvas {
         #gameContainer { width: 100dvh; height: 100dvw; }
     }
 
-    .left-section, .right-section, .center-section {
+    .left-section {
+        width: 25%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 20px;
+        padding: 0 10px;
+    }
+
+    .left-section h1 {
+        margin-top: -20px;
+    }
+
+    .left-section #message {
+        margin-top: 10px;
+    }
+
+    .center-section {
+        width: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    
-    .left-section { width: 25%; flex-direction: column; gap: 20px; text-align: center; }
-    .center-section { width: 50%; }
-    .right-section { width: 25%; flex-direction: column; justify-content: space-between; height: 90%; }
-    
-    .controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 0 0 8px 0; }
-    .game-button { padding: 10px; font-size: 12px; }
+
+    .right-section {
+        width: 25%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 90%;
+        padding: 0 10px;
+    }
+
+    .controls {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin: 0 0 8px 0;
+    }
+
+    .game-button {
+        padding: 10px;
+        font-size: 12px;
+        width: auto;
+        border-radius: 5px;
+        background-color: #1a365d;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .game-button:active {
+        background-color: #2c5282;
+    }
+
+    .game-button:focus-visible {
+        outline: 2px solid rgba(76, 175, 80, 0.6);
+        outline-offset: 2px;
+    }
 
     .mobile-controls {
         display: grid;
@@ -177,55 +321,158 @@ canvas {
     }
 
     .mobile-btn {
-        width: 48px;
-        height: 48px;
-        transform: none; /* Keep buttons upright */
-        border-radius: 0; /* Make buttons square */
+        width: 0;
+        height: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
     }
-    .mobile-btn span { transform: none; }
-    .mobile-btn:active { transform: scale(0.95); }
+    .mobile-btn span { display: none; }
+    .mobile-btn:active { transform: scale(0.9); }
 
-    .up-btn { grid-column: 2; grid-row: 1; }
-    .left-btn { grid-column: 1; grid-row: 2; }
-    .right-btn { grid-column: 3; grid-row: 2; }
-    .down-btn { grid-column: 2; grid-row: 3; }
-    .middle-row { display: contents; }
+    /* Triangle buttons positioned at edges of square */
+    .up-btn {
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-bottom: 35px solid #1a365d;
+        grid-column: 2;
+        grid-row: 1;
+    }
+    .up-btn:active { border-bottom-color: #2c5282; }
 
-    h1 { font-size: 18px; margin: 0; }
-    .game-title, #message { font-size: 14px; margin: 5px 0; }
-    canvas { max-height: 90vh; width: auto; }
+    .down-btn {
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-top: 35px solid #1a365d;
+        grid-column: 2;
+        grid-row: 3;
+    }
+    .down-btn:active { border-top-color: #2c5282; }
+
+    .left-btn {
+        border-top: 20px solid transparent;
+        border-bottom: 20px solid transparent;
+        border-right: 35px solid #1a365d;
+        grid-column: 1;
+        grid-row: 2;
+    }
+    .left-btn:active { border-right-color: #2c5282; }
+
+    .right-btn {
+        border-top: 20px solid transparent;
+        border-bottom: 20px solid transparent;
+        border-left: 35px solid #1a365d;
+        grid-column: 3;
+        grid-row: 2;
+    }
+    .right-btn:active { border-left-color: #2c5282; }
+
+    h1 {
+        font-size: 18px;
+        margin: 0;
+    }
+
+    .game-title {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    #message {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    canvas {
+        max-height: 90vh;
+        width: auto;
+        background-color: white;
+        border: 2px solid #333;
+        border-radius: 5px;
+    }
 }
 
 /* Mobile Landscape Styles */
 @media (max-width: 768px) and (orientation: landscape) {
-    #gameContainer, .container {
+    .container {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
         height: 100vh;
-        width: 100vw;
         padding: 10px;
         gap: 10px;
         max-width: none;
     }
 
+    /* Prefer dynamic viewport units to handle mobile browser UI bars */
     @supports (height: 100dvh) {
-        #gameContainer, .container { height: 100dvh; width: 100dvw; }
+        .container { height: 100dvh; }
     }
 
-    .left-section, .right-section, .center-section {
+    .left-section {
+        width: 25%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 20px;
+        padding: 0 10px;
+    }
+
+    .left-section h1 {
+        margin-top: -20px;
+    }
+
+    .left-section #message {
+        margin-top: 10px;
+    }
+
+    .center-section {
+        width: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    
-    .left-section { width: 25%; flex-direction: column; gap: 20px; text-align: center; }
-    .center-section { width: 50%; }
-    .right-section { width: 25%; flex-direction: column; justify-content: space-between; height: 90%; }
-    
-    .controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 0 0 8px 0; }
-    .game-button { padding: 10px; font-size: 12px; }
-    
+
+    .right-section {
+        width: 25%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 90%;
+        padding: 0 10px;
+    }
+
+    .controls {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin: 0 0 8px 0;
+    }
+
+    .game-button {
+        padding: 10px;
+        font-size: 12px;
+        width: auto;
+        border-radius: 5px;
+        background-color: #1a365d;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .game-button:active {
+        background-color: #2c5282;
+    }
+
+    .game-button:focus-visible {
+        outline: 2px solid rgba(76, 175, 80, 0.6);
+        outline-offset: 2px;
+    }
+
     .mobile-controls {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -236,23 +483,81 @@ canvas {
     }
 
     .mobile-btn {
-        width: 48px;
-        height: 48px;
-        transform: none; /* Keep buttons upright */
-        border-radius: 0; /* Make buttons square */
+        width: 0;
+        height: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
     }
-    .mobile-btn span { transform: none; }
-    .mobile-btn:active { transform: scale(0.95); }
+    .mobile-btn span { display: none; }
+    .mobile-btn:active { transform: scale(0.9); }
 
-    .up-btn { grid-column: 2; grid-row: 1; }
-    .left-btn { grid-column: 1; grid-row: 2; }
-    .right-btn { grid-column: 3; grid-row: 2; }
-    .down-btn { grid-column: 2; grid-row: 3; }
-    .middle-row { display: contents; }
+    /* Triangle buttons positioned at edges of square */
+    .up-btn {
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-bottom: 35px solid #1a365d;
+        grid-column: 2;
+        grid-row: 1;
+    }
+    .up-btn:active { border-bottom-color: #2c5282; }
 
-    h1 { font-size: 18px; margin: 0; }
-    .game-title, #message { font-size: 14px; margin: 5px 0; }
-    canvas { max-height: 90vh; width: auto; }
+    .down-btn {
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-top: 35px solid #1a365d;
+        grid-column: 2;
+        grid-row: 3;
+    }
+    .down-btn:active { border-top-color: #2c5282; }
+
+    .left-btn {
+        border-top: 20px solid transparent;
+        border-bottom: 20px solid transparent;
+        border-right: 35px solid #1a365d;
+        grid-column: 1;
+        grid-row: 2;
+    }
+    .left-btn:active { border-right-color: #2c5282; }
+
+    .right-btn {
+        border-top: 20px solid transparent;
+        border-bottom: 20px solid transparent;
+        border-left: 35px solid #1a365d;
+        grid-column: 3;
+        grid-row: 2;
+    }
+    .right-btn:active { border-left-color: #2c5282; }
+
+    .middle-row {
+        gap: 35px;
+    }
+
+    h1 {
+        font-size: 18px;
+        margin: 0;
+    }
+
+    .game-title {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    #message {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    canvas {
+        max-height: 90vh;
+        width: auto;
+        background-color: white;
+        border: 2px solid #333;
+        border-radius: 5px;
+    }
 }
 
 /* Modal Styles */
@@ -282,19 +587,54 @@ canvas {
     overflow-y: auto;
 }
 
-.modal-content h2, .modal-content h3, .modal-content ul, .modal-content li, .modal-content button {
+.modal-content h2 {
     color: #333;
+    margin-top: 0;
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
 }
 
-.modal-content h2 { margin-top: 0; text-align: center; font-size: 24px; margin-bottom: 20px; }
-.modal-content h3 { color: #4CAF50; margin-top: 15px; margin-bottom: 8px; font-size: 18px; }
-.modal-content ul { line-height: 1.6; margin-bottom: 15px; padding-left: 25px; }
-.modal-content li { margin-bottom: 6px; font-size: 14px; }
-.modal-content button { display: block; margin: 20px auto 0; }
+.modal-content h3 {
+    color: #4CAF50;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.modal-content ul {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    padding-left: 25px;
+}
+
+.modal-content li {
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.modal-content button {
+    display: block;
+    margin: 20px auto 0;
+}
 
 @media (max-width: 768px) {
-    .modal-content { width: 90%; margin: 5% auto; padding: 15px; }
-    .modal-content h2 { font-size: 20px; }
-    .modal-content h3 { font-size: 16px; }
-    .modal-content li { font-size: 12px; }
-}
+    .modal-content {
+        width: 90%;
+        margin: 5% auto;
+        padding: 15px;
+    }
+
+    .modal-content h2 {
+        font-size: 20px;
+    }
+
+    .modal-content h3 {
+        font-size: 16px;
+    }
+
+    .modal-content li {
+        font-size: 12px;
+    }
+} 
