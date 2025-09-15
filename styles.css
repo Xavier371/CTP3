@@ -253,17 +253,17 @@ canvas {
 
     .mobile-controls { /* Will be absolutely centered in bottom half of right column */
         position: absolute;
-        top: 75%;                 /* vertical center of bottom half */
-        left: 50%;                /* horizontally centered */
+        top: 75%;
+        left: 50%;
         transform: translate(-50%, -50%);
-        width: 100px;             /* square container size */
+        width: 100px;
         height: 100px;
 
         display: grid !important;
-        grid-template-columns: 1fr 30px 1fr; /* empty middle square width */
-        grid-template-rows: 1fr 30px 1fr;    /* empty middle square height */
+        grid-template-columns: 1fr 25px 1fr; /* reduced middle square width */
+        grid-template-rows: 1fr 25px 1fr;    /* reduced middle square height */
         gap: 0;
-        margin: 0;                /* override previous margins */
+        margin: 0;
     }
 
     .left-section {
@@ -310,7 +310,7 @@ canvas {
         align-items: center;
         height: 90%;
         padding: 0 10px;
-        position: relative; /* make it a positioning context for absolute D-pad */
+        position: relative;
     }
 
     .controls {
@@ -359,7 +359,7 @@ canvas {
 
     .middle-row { display: contents; }
 
-    /* Triangle buttons - sized to frame a 30x30 empty square in the grid center */
+    /* Triangle buttons - sized to frame a 25x25 empty square */
     .up-btn {
         border-left: 15px solid transparent;
         border-right: 15px solid transparent;
@@ -367,10 +367,8 @@ canvas {
         grid-column: 2;
         grid-row: 1;
         justify-self: center;
-        align-self: end;   /* base aligns with empty square's top edge */
+        align-self: end;
     }
-
-    .up-btn:active { border-bottom-color: #2c5282; }
 
     .down-btn {
         border-left: 15px solid transparent;
@@ -379,10 +377,8 @@ canvas {
         grid-column: 2;
         grid-row: 3;
         justify-self: center;
-        align-self: start; /* base aligns with empty square's bottom edge */
+        align-self: start;
     }
-
-    .down-btn:active { border-top-color: #2c5282; }
 
     .left-btn {
         border-top: 15px solid transparent;
@@ -391,10 +387,8 @@ canvas {
         grid-column: 1;
         grid-row: 2;
         justify-self: end;
-        align-self: center; /* base aligns with empty square's left edge */
+        align-self: center;
     }
-
-    .left-btn:active { border-right-color: #2c5282; }
 
     .right-btn {
         border-top: 15px solid transparent;
@@ -403,10 +397,8 @@ canvas {
         grid-column: 3;
         grid-row: 2;
         justify-self: start;
-        align-self: center; /* base aligns with empty square's right edge */
+        align-self: center;
     }
-
-    .right-btn:active { border-left-color: #2c5282; }
 
     canvas {
         max-height: 90vh;
