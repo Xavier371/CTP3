@@ -129,7 +129,7 @@ canvas {
     display: none;
 }
 
-/* Triangle buttons positioned at edges of square */
+/* Triangle buttons positioned at edges of square (default desktop sizing) */
 .up-btn {
     border-left: 20px solid transparent !important;
     border-right: 20px solid transparent !important;
@@ -235,6 +235,7 @@ canvas {
     }
 }
 
+/* Mobile Landscape Styles */
 @media (max-width: 768px) and (orientation: landscape) {
     .rotation-overlay {
         display: none;
@@ -250,8 +251,19 @@ canvas {
         max-width: none;
     }
 
-    .mobile-controls {
+    .mobile-controls { /* Will be absolutely centered in bottom half of right column */
+        position: absolute;
+        top: 75%;                 /* vertical center of bottom half */
+        left: 50%;                /* horizontally centered */
+        transform: translate(-50%, -50%);
+        width: 100px;             /* square container size */
+        height: 100px;
+
         display: grid !important;
+        grid-template-columns: 1fr 30px 1fr; /* empty middle square width */
+        grid-template-rows: 1fr 30px 1fr;    /* empty middle square height */
+        gap: 0;
+        margin: 0;                /* override previous margins */
     }
 
     .left-section {
@@ -298,6 +310,7 @@ canvas {
         align-items: center;
         height: 90%;
         padding: 0 10px;
+        position: relative; /* make it a positioning context for absolute D-pad */
     }
 
     .controls {
@@ -327,18 +340,6 @@ canvas {
         box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
-    .mobile-controls {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        grid-template-rows: 1fr 1fr 1fr;
-        gap: 0;
-        margin-bottom: 15%;
-        width: 80px;
-        height: 80px;
-        margin-left: auto;
-        margin-right: 0;
-    }
-
     .mobile-btn {
         width: 0;
         height: 0;
@@ -354,15 +355,11 @@ canvas {
         transform: scale(0.9);
     }
 
-    .mobile-btn span {
-        display: none;
-    }
+    .mobile-btn span { display: none; }
 
-    .middle-row {
-        display: contents;
-    }
+    .middle-row { display: contents; }
 
-    /* Triangle buttons - all same size, positioned at edges */
+    /* Triangle buttons - sized to frame a 30x30 empty square in the grid center */
     .up-btn {
         border-left: 15px solid transparent;
         border-right: 15px solid transparent;
@@ -370,12 +367,10 @@ canvas {
         grid-column: 2;
         grid-row: 1;
         justify-self: center;
-        align-self: end;
+        align-self: end;   /* base aligns with empty square's top edge */
     }
 
-    .up-btn:active {
-        border-bottom-color: #2c5282;
-    }
+    .up-btn:active { border-bottom-color: #2c5282; }
 
     .down-btn {
         border-left: 15px solid transparent;
@@ -384,12 +379,10 @@ canvas {
         grid-column: 2;
         grid-row: 3;
         justify-self: center;
-        align-self: start;
+        align-self: start; /* base aligns with empty square's bottom edge */
     }
 
-    .down-btn:active {
-        border-top-color: #2c5282;
-    }
+    .down-btn:active { border-top-color: #2c5282; }
 
     .left-btn {
         border-top: 15px solid transparent;
@@ -398,12 +391,10 @@ canvas {
         grid-column: 1;
         grid-row: 2;
         justify-self: end;
-        align-self: center;
+        align-self: center; /* base aligns with empty square's left edge */
     }
 
-    .left-btn:active {
-        border-right-color: #2c5282;
-    }
+    .left-btn:active { border-right-color: #2c5282; }
 
     .right-btn {
         border-top: 15px solid transparent;
@@ -412,12 +403,10 @@ canvas {
         grid-column: 3;
         grid-row: 2;
         justify-self: start;
-        align-self: center;
+        align-self: center; /* base aligns with empty square's right edge */
     }
 
-    .right-btn:active {
-        border-left-color: #2c5282;
-    }
+    .right-btn:active { border-left-color: #2c5282; }
 
     canvas {
         max-height: 90vh;
