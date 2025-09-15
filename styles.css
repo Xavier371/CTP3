@@ -361,9 +361,9 @@ canvas {
 
     /* Triangle buttons - equalized sizes */
     .up-btn {
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-bottom: 14px solid #1a365d;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-bottom: 20px solid #1a365d;
         grid-column: 2;
         grid-row: 1;
         justify-self: center;
@@ -371,9 +371,9 @@ canvas {
     }
 
     .down-btn {
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-top: 14px solid #1a365d;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-top: 20px solid #1a365d;
         grid-column: 2;
         grid-row: 3;
         justify-self: center;
