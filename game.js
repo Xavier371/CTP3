@@ -347,12 +347,21 @@ function toggleMode() {
   resetGame();
 }
 
-function showInstructions() { document.getElementById('instructionsModal').style.display = 'block'; }
-function closeInstructions() { document.getElementById('instructionsModal').style.display = 'none'; }
+function showInstructions() { 
+  document.getElementById('instructionsModal').style.display = 'block'; 
+  document.body.classList.add('modal-open');
+}
+function closeInstructions() { 
+  document.getElementById('instructionsModal').style.display = 'none'; 
+  document.body.classList.remove('modal-open');
+}
 
 window.onclick = function (e) {
   const modal = document.getElementById('instructionsModal');
-  if (e.target === modal) modal.style.display = 'none';
+  if (e.target === modal) {
+    modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+  }
 };
 
 // Only prevent default for keys we use (to avoid blocking other browser actions)
