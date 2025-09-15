@@ -318,7 +318,7 @@ canvas {
         box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
     }
 
-    /* TRIANGLE CONTROLS at bottom of right section */
+    /* TRIANGLE CONTROLS at bottom of right section - ALWAYS VISIBLE */
     .mobile-controls { 
         display: flex !important; 
         flex-direction: column; 
@@ -330,6 +330,9 @@ canvas {
         margin-left: auto;
         margin-right: 20px;
         position: relative;
+        z-index: 10;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 
     .mobile-btn { 
@@ -342,6 +345,9 @@ canvas {
         -webkit-tap-highlight-color: transparent;
         display: block !important;
         position: relative;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 11;
     }
     .mobile-btn:active { 
         transform: scale(0.85); 
@@ -356,33 +362,45 @@ canvas {
         align-items: center;
     }
 
-    /* Perfect triangle buttons - positioned like in image */
+    /* Perfect triangle buttons - ALWAYS VISIBLE */
     .up-btn,
     .down-btn { 
         border-left: 15px solid transparent !important; 
         border-right: 15px solid transparent !important; 
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     .up-btn   { 
         border-bottom: 22px solid #1a365d !important; 
         border-top: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     .down-btn { 
         border-top: 22px solid #1a365d !important; 
         border-bottom: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     
     .left-btn,
     .right-btn {
         border-top: 15px solid transparent !important;
         border-bottom: 15px solid transparent !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     .left-btn  { 
         border-right: 22px solid #1a365d !important; 
         border-left: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     .right-btn { 
         border-left: 22px solid #1a365d !important; 
         border-right: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 
     canvas { 
@@ -393,6 +411,32 @@ canvas {
         background-color: white; 
         border: 2px solid #333; 
         border-radius: 5px; 
+    }
+}
+
+/* FORCE TRIANGLES TO BE VISIBLE ON ALL MOBILE DEVICES */
+@media (max-width: 768px) and (orientation: landscape), 
+       (max-height: 500px) and (orientation: landscape),
+       (pointer: coarse) and (orientation: landscape) {
+    
+    .mobile-controls {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 999 !important;
+    }
+    
+    .mobile-btn {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 1000 !important;
+    }
+    
+    .up-btn, .down-btn, .left-btn, .right-btn {
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: block !important;
     }
 }
 
