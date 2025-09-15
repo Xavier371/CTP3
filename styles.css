@@ -138,9 +138,7 @@ canvas {
     grid-row: 1;
 }
 
-.up-btn:active {
-    border-bottom-color: #2c5282 !important;
-}
+.up-btn:active { border-bottom-color: #2c5282 !important; }
 
 .down-btn {
     border-left: 20px solid transparent !important;
@@ -150,9 +148,7 @@ canvas {
     grid-row: 3;
 }
 
-.down-btn:active {
-    border-top-color: #2c5282 !important;
-}
+.down-btn:active { border-top-color: #2c5282 !important; }
 
 .left-btn {
     border-top: 20px solid transparent !important;
@@ -162,9 +158,7 @@ canvas {
     grid-row: 2;
 }
 
-.left-btn:active {
-    border-right-color: #2c5282 !important;
-}
+.left-btn:active { border-right-color: #2c5282 !important; }
 
 .right-btn {
     border-top: 20px solid transparent !important;
@@ -174,9 +168,7 @@ canvas {
     grid-row: 2;
 }
 
-.right-btn:active {
-    border-left-color: #2c5282 !important;
-}
+.right-btn:active { border-left-color: #2c5282 !important; }
 
 .middle-row {
     display: flex;
@@ -201,44 +193,21 @@ canvas {
     font-family: Arial, sans-serif;
 }
 
-.rotation-overlay h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
-    text-align: center;
-}
+.rotation-overlay h1 { font-size: 24px; margin-bottom: 20px; text-align: center; }
+.rotation-overlay p  { font-size: 18px; text-align: center; margin: 0; }
+.phone-icon { font-size: 48px; margin-bottom: 20px; animation: rotate 2s linear infinite; }
 
-.rotation-overlay p {
-    font-size: 18px;
-    text-align: center;
-    margin: 0;
-}
-
-.phone-icon {
-    font-size: 48px;
-    margin-bottom: 20px;
-    animation: rotate 2s linear infinite;
-}
-
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(90deg); }
-}
+@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(90deg); } }
 
 /* Mobile Portrait Styles */
 @media (max-width: 768px) and (orientation: portrait) {
-    .rotation-overlay {
-        display: flex;
-    }
-    
-    #gameContainer {
-        display: none;
-    }
+    .rotation-overlay { display: flex; }
+    #gameContainer { display: none; }
 }
 
+/* Mobile Landscape Styles */
 @media (max-width: 768px) and (orientation: landscape) {
-    .rotation-overlay {
-        display: none;
-    }
+    .rotation-overlay { display: none; }
     
     .container {
         flex-direction: row;
@@ -260,31 +229,11 @@ canvas {
         padding: 0 10px;
     }
 
-    .left-section h1 {
-        font-size: 20px;
-        font-weight: bold;
-        margin: 0;
-        margin-top: -30px;
-        margin-bottom: 10px;
-    }
+    .left-section h1 { font-size: 20px; font-weight: bold; margin: 0; margin-top: -30px; margin-bottom: 10px; }
+    .left-section .game-title { font-size: 14px; margin: 5px 0; }
+    .left-section #message { font-size: 14px; margin: 5px 0; margin-top: 10px; }
 
-    .left-section .game-title {
-        font-size: 14px;
-        margin: 5px 0;
-    }
-
-    .left-section #message {
-        font-size: 14px;
-        margin: 5px 0;
-        margin-top: 10px;
-    }
-
-    .center-section {
-        width: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    .center-section { width: 50%; display: flex; align-items: center; justify-content: center; }
 
     .right-section {
         width: 25%;
@@ -296,13 +245,7 @@ canvas {
         padding: 0 10px;
     }
 
-    .controls {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 15%;
-        gap: 20px;
-    }
+    .controls { display: flex; flex-direction: column; align-items: center; margin-bottom: 15%; gap: 20px; }
 
     .game-button {
         padding: 10px;
@@ -316,95 +259,27 @@ canvas {
         transition: all 0.3s;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
+    .game-button:active { background-color: #2c5282; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
 
-    .game-button:active {
-        background-color: #2c5282;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
+    .mobile-controls { display: flex; flex-direction: column; align-items: center; margin-bottom: 0; gap: 18px; }
 
-    .mobile-controls {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 0;
-        gap: 18px;
-    }
-
-    .mobile-btn {
-        width: 0;
-        height: 0;
-        border: none;
-        background: transparent !important;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        -webkit-tap-highlight-color: transparent;
-    }
-
+    .mobile-btn { width: 0; height: 0; border: none; background: transparent !important; cursor: pointer; transition: all 0.3s ease; -webkit-tap-highlight-color: transparent; }
     .mobile-btn:active { transform: scale(0.9); }
     .mobile-btn span { display: none; }
 
-    .middle-row {
-        display: flex;
-        gap: 36px;
-        justify-content: center;
-    }
+    .middle-row { display: flex; gap: 36px; justify-content: center; }
 
-    /* --- Equalized but with smaller vertical arrows --- */
-    :root { --triBase: 24px; --triHeight: 20px; }
+    /* FORCE smaller vertical triangles on phones (override desktop !important) */
+    .up-btn,
+    .down-btn { border-left: 17px solid transparent !important; border-right: 17px solid transparent !important; }
+    .up-btn   { border-bottom: 30px solid #1a365d !important; }
+    .down-btn { border-top:    30px solid #1a365d !important; }
 
-    /* Up triangle (smaller) */
-    .up-btn {
-        border-left: calc(var(--triBase) / 2) solid transparent;
-        border-right: calc(var(--triBase) / 2) solid transparent;
-        border-bottom: calc(var(--triHeight) * 0.8) solid #1a365d;
-    }
-    .up-btn:active { border-bottom-color: #2c5282; }
-
-    /* Down triangle (smaller) */
-    .down-btn {
-        border-left: calc(var(--triBase) / 2) solid transparent;
-        border-right: calc(var(--triBase) / 2) solid transparent;
-        border-top: calc(var(--triHeight) * 0.8) solid #1a365d;
-    }
-    .down-btn:active { border-top-color: #2c5282; }
-
-    /* Left triangle */
-    .left-btn {
-        border-top: calc(var(--triBase) / 2) solid transparent;
-        border-bottom: calc(var(--triBase) / 2) solid transparent;
-        border-right: var(--triHeight) solid #1a365d;
-    }
-    .left-btn:active { border-right-color: #2c5282; }
-
-    /* Right triangle */
-    .right-btn {
-        border-top: calc(var(--triBase) / 2) solid transparent;
-        border-bottom: calc(var(--triBase) / 2) solid transparent;
-        border-left: var(--triHeight) solid #1a365d;
-    }
-    .right-btn:active { border-left-color: #2c5282; }
-
-    canvas {
-        max-height: 90vh;
-        width: auto;
-        background-color: white;
-        border: 2px solid #333;
-        border-radius: 5px;
-    }
+    canvas { max-height: 90vh; width: auto; background-color: white; border: 2px solid #333; border-radius: 5px; }
 }
 
 /* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.4);
-}
+.modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
 
 .modal-content {
     background-color: #fefefe;
@@ -421,45 +296,14 @@ canvas {
     overflow-y: auto;
 }
 
-.modal-content h2 {
-    color: #333;
-    margin-top: 0;
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-.modal-content h3 {
-    color: #1a365d;
-    margin-top: 15px;
-    margin-bottom: 8px;
-    font-size: 18px;
-}
-
-.modal-content ul {
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 15px;
-    padding-left: 25px;
-}
-
-.modal-content li {
-    margin-bottom: 6px;
-    font-size: 14px;
-}
-
-.modal-content button {
-    display: block;
-    margin: 20px auto 0;
-}
+.modal-content h2 { color: #333; margin-top: 0; text-align: center; font-size: 24px; margin-bottom: 20px; }
+.modal-content h3 { color: #1a365d; margin-top: 15px; margin-bottom: 8px; font-size: 18px; }
+.modal-content ul { color: #666; line-height: 1.6; margin-bottom: 15px; padding-left: 25px; }
+.modal-content li { margin-bottom: 6px; font-size: 14px; }
+.modal-content button { display: block; margin: 20px auto 0; }
 
 @media (max-width: 768px) {
-    .modal-content {
-        width: 90%;
-        margin: 5% auto;
-        padding: 15px;
-    }
-
+    .modal-content { width: 90%; margin: 5% auto; padding: 15px; }
     .modal-content h2 { font-size: 20px; }
     .modal-content h3 { font-size: 16px; }
     .modal-content li { font-size: 12px; }
