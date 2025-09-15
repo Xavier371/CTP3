@@ -466,12 +466,16 @@ document.addEventListener('touchmove', function(e) {
 function checkGameOver() {
     if (bluePos.x === redPos.x && bluePos.y === redPos.y) {
         gameOver = true;
+        const messageEl = document.getElementById('message');
         if (gameMode === 'offense') {
-            document.getElementById('message').textContent = 'Blue Wins - Points are joined';
+            messageEl.textContent = 'Blue Wins - Points are joined';
+            messageEl.className = 'blue-wins';
         } else if (gameMode === 'defense') {
-            document.getElementById('message').textContent = 'Red Wins - Points are joined';
+            messageEl.textContent = 'Red Wins - Points are joined';
+            messageEl.className = 'red-wins';
         } else {
-            document.getElementById('message').textContent = 'Blue Wins - Points are joined';
+            messageEl.textContent = 'Blue Wins - Points are joined';
+            messageEl.className = 'blue-wins';
         }
         return true;
     }
@@ -479,12 +483,16 @@ function checkGameOver() {
     const path = findShortestPath(bluePos, redPos);
     if (!path) {
         gameOver = true;
+        const messageEl = document.getElementById('message');
         if (gameMode === 'offense') {
-            document.getElementById('message').textContent = 'Red Wins - Points are separated';
+            messageEl.textContent = 'Red Wins - Points are separated';
+            messageEl.className = 'red-wins';
         } else if (gameMode === 'defense') {
-            document.getElementById('message').textContent = 'Blue Wins - Points are separated';
+            messageEl.textContent = 'Blue Wins - Points are separated';
+            messageEl.className = 'blue-wins';
         } else {
-            document.getElementById('message').textContent = 'Red Wins - Points are separated';
+            messageEl.textContent = 'Red Wins - Points are separated';
+            messageEl.className = 'red-wins';
         }
         return true;
     }
@@ -525,10 +533,13 @@ function handleMove(key) {
         // Check for capture
         if (checkCrossPath(oldBlue, bluePos, oldRed, redPos)) {
             gameOver = true;
+            const messageEl = document.getElementById('message');
             if (gameMode === 'defense') {
-                document.getElementById('message').textContent = 'Red Wins - Caught Blue!';
+                messageEl.textContent = 'Red Wins - Caught Blue!';
+                messageEl.className = 'red-wins';
             } else {
-                document.getElementById('message').textContent = 'Blue Wins - Caught Red!';
+                messageEl.textContent = 'Blue Wins - Caught Red!';
+                messageEl.className = 'blue-wins';
             }
             drawGame();
             return;
@@ -639,7 +650,9 @@ document.addEventListener('keydown', (e) => {
 function resetGame() {
     gameOver = false;
     redTurn = true;  // Red always starts
-    document.getElementById('message').textContent = '';
+    const messageEl = document.getElementById('message');
+    messageEl.textContent = '';
+    messageEl.className = '';
     
     // Initialize edges first (includes removing two random edges)
     initializeEdges();
