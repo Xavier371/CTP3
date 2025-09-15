@@ -134,7 +134,6 @@ canvas {
     border-left: 20px solid transparent !important;
     border-right: 20px solid transparent !important;
     border-bottom: 35px solid #1a365d !important;
-    background: transparent !important;
     grid-column: 2;
     grid-row: 1;
 }
@@ -147,7 +146,6 @@ canvas {
     border-left: 20px solid transparent !important;
     border-right: 20px solid transparent !important;
     border-top: 35px solid #1a365d !important;
-    background: transparent !important;
     grid-column: 2;
     grid-row: 3;
 }
@@ -160,7 +158,6 @@ canvas {
     border-top: 20px solid transparent !important;
     border-bottom: 20px solid transparent !important;
     border-right: 35px solid #1a365d !important;
-    background: transparent !important;
     grid-column: 1;
     grid-row: 2;
 }
@@ -173,7 +170,6 @@ canvas {
     border-top: 20px solid transparent !important;
     border-bottom: 20px solid transparent !important;
     border-left: 35px solid #1a365d !important;
-    background: transparent !important;
     grid-column: 3;
     grid-row: 2;
 }
