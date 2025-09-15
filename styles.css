@@ -269,11 +269,11 @@ canvas {
 
     .middle-row { display: flex; gap: 36px; justify-content: center; }
 
-    /* FORCE smaller vertical triangles on phones (override desktop !important) */
+    /* FORCE smaller vertical triangles on phones */
     .up-btn,
-    .down-btn { border-left: 17px solid transparent !important; border-right: 17px solid transparent !important; }
-    .up-btn   { border-bottom: 30px solid #1a365d !important; }
-    .down-btn { border-top:    30px solid #1a365d !important; }
+    .down-btn { border-left: 15px solid transparent !important; border-right: 15px solid transparent !important; }
+    .up-btn   { border-bottom: 24px solid #1a365d !important; }
+    .down-btn { border-top:    24px solid #1a365d !important; }
 
     canvas { max-height: 90vh; width: auto; background-color: white; border: 2px solid #333; border-radius: 5px; }
 }
