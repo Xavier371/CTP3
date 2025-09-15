@@ -251,10 +251,19 @@ canvas {
     }
 
     .left-section h1 {
+        font-size: 18px;
+        margin: 0;
         margin-top: -20px;
     }
 
+    .left-section .game-title {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
     .left-section #message {
+        font-size: 14px;
+        margin: 5px 0;
         margin-top: 10px;
     }
 
@@ -358,21 +367,6 @@ canvas {
         grid-row: 2;
     }
     .right-btn:active { border-left-color: #2c5282; }
-
-    h1 {
-        font-size: 18px;
-        margin: 0;
-    }
-
-    .game-title {
-        font-size: 14px;
-        margin: 5px 0;
-    }
-
-    #message {
-        font-size: 14px;
-        margin: 5px 0;
-    }
 
     canvas {
         max-height: 90vh;
