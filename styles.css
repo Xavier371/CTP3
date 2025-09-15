@@ -206,7 +206,9 @@ canvas {
 }
 
 /* Mobile Landscape Styles - WORKS ON ALL PHONES */
-@media (max-width: 768px) and (orientation: landscape) {
+@media (max-width: 768px) and (orientation: landscape), 
+       (max-height: 500px) and (orientation: landscape),
+       (pointer: coarse) and (orientation: landscape) {
     .rotation-overlay { display: none; }
     
     /* Force full viewport usage */
@@ -230,35 +232,39 @@ canvas {
     }
 
     .left-section {
-        width: 28%;
-        min-width: 100px;
+        width: 30%;
+        min-width: 120px;
         text-align: center;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
-        gap: 4px;
-        padding: 10px 5px;
+        gap: 6px;
+        padding: 15px 8px;
         overflow: visible;
+        height: 100vh;
+        box-sizing: border-box;
     }
 
     .left-section h1 { 
-        font-size: 14px; 
+        font-size: 16px; 
         font-weight: bold; 
         margin: 0; 
-        line-height: 1.2;
-        white-space: nowrap;
+        line-height: 1.1;
+        color: #333;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
     .left-section .game-title { 
-        font-size: 10px; 
+        font-size: 12px; 
         margin: 0; 
-        line-height: 1.3;
-        white-space: nowrap;
+        line-height: 1.2;
+        color: #555;
     }
     .left-section #message { 
-        font-size: 10px; 
+        font-size: 12px; 
         margin: 0; 
-        line-height: 1.3;
-        white-space: nowrap;
+        line-height: 1.2;
+        color: #666;
+        min-height: 20px;
     }
 
     .center-section { 
@@ -312,10 +318,11 @@ canvas {
         display: flex !important; 
         flex-direction: column; 
         align-items: center; 
-        gap: 8px;
-        width: 80px;
-        height: 80px;
+        gap: 12px;
+        width: 90px;
+        height: 90px;
         margin: 0 auto;
+        position: relative;
     }
 
     .mobile-btn { 
@@ -324,36 +331,52 @@ canvas {
         border: none; 
         background: transparent !important; 
         cursor: pointer; 
-        transition: all 0.3s ease; 
+        transition: all 0.2s ease; 
         -webkit-tap-highlight-color: transparent;
         display: block !important;
+        position: relative;
     }
-    .mobile-btn:active { transform: scale(0.9); }
+    .mobile-btn:active { 
+        transform: scale(0.85); 
+        filter: brightness(1.2);
+    }
     .mobile-btn span { display: none; }
 
     .middle-row { 
         display: flex; 
-        gap: 30px; 
+        gap: 35px; 
         justify-content: center; 
         align-items: center;
     }
 
-    /* Triangle buttons - better looking */
+    /* Perfect triangle buttons */
     .up-btn,
     .down-btn { 
-        border-left: 12px solid transparent !important; 
-        border-right: 12px solid transparent !important; 
+        border-left: 15px solid transparent !important; 
+        border-right: 15px solid transparent !important; 
     }
-    .up-btn   { border-bottom: 18px solid #1a365d !important; }
-    .down-btn { border-top:    18px solid #1a365d !important; }
+    .up-btn   { 
+        border-bottom: 22px solid #1a365d !important; 
+        border-top: none !important;
+    }
+    .down-btn { 
+        border-top: 22px solid #1a365d !important; 
+        border-bottom: none !important;
+    }
     
     .left-btn,
     .right-btn {
-        border-top: 12px solid transparent !important;
-        border-bottom: 12px solid transparent !important;
+        border-top: 15px solid transparent !important;
+        border-bottom: 15px solid transparent !important;
     }
-    .left-btn  { border-right: 18px solid #1a365d !important; }
-    .right-btn { border-left:  18px solid #1a365d !important; }
+    .left-btn  { 
+        border-right: 22px solid #1a365d !important; 
+        border-left: none !important;
+    }
+    .right-btn { 
+        border-left: 22px solid #1a365d !important; 
+        border-right: none !important;
+    }
 
     canvas { 
         max-height: 80vh; 
@@ -364,6 +387,65 @@ canvas {
         border: 2px solid #333; 
         border-radius: 5px; 
     }
+}
+
+/* Additional mobile device specific styles */
+body.mobile-device.landscape .left-section {
+    padding: 20px 10px;
+}
+
+body.mobile-device.landscape .left-section h1 {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+body.mobile-device.landscape .left-section .game-title {
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+body.mobile-device.landscape .left-section #message {
+    font-size: 13px;
+    min-height: 25px;
+}
+
+body.mobile-device.landscape .mobile-controls {
+    width: 100px;
+    height: 100px;
+    gap: 15px;
+}
+
+body.mobile-device.landscape .middle-row {
+    gap: 40px;
+}
+
+/* Perfect triangles for mobile devices */
+body.mobile-device.landscape .up-btn,
+body.mobile-device.landscape .down-btn { 
+    border-left: 18px solid transparent !important; 
+    border-right: 18px solid transparent !important; 
+}
+body.mobile-device.landscape .up-btn   { 
+    border-bottom: 25px solid #1a365d !important; 
+    border-top: none !important;
+}
+body.mobile-device.landscape .down-btn { 
+    border-top: 25px solid #1a365d !important; 
+    border-bottom: none !important;
+}
+
+body.mobile-device.landscape .left-btn,
+body.mobile-device.landscape .right-btn {
+    border-top: 18px solid transparent !important;
+    border-bottom: 18px solid transparent !important;
+}
+body.mobile-device.landscape .left-btn  { 
+    border-right: 25px solid #1a365d !important; 
+    border-left: none !important;
+}
+body.mobile-device.landscape .right-btn { 
+    border-left: 25px solid #1a365d !important; 
+    border-right: none !important;
 }
 
 
