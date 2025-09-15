@@ -50,6 +50,16 @@ h1 {
     line-height: 1.4;
 }
 
+#message.blue-wins {
+    color: #1a365d;
+    font-weight: bold;
+}
+
+#message.red-wins {
+    color: #8B0000;
+    font-weight: bold;
+}
+
 .center-section {
     width: 100%;
     display: flex;
@@ -251,9 +261,11 @@ canvas {
     }
 
     .left-section h1 {
-        font-size: 18px;
+        font-size: 20px;
+        font-weight: bold;
         margin: 0;
-        margin-top: -20px;
+        margin-top: -30px;
+        margin-bottom: 10px;
     }
 
     .left-section .game-title {
@@ -278,16 +290,18 @@ canvas {
         width: 25%;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: center;
+        align-items: center;
         height: 90%;
         padding: 0 10px;
     }
 
     .controls {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         gap: 8px;
-        margin: 0 0 8px 0;
+        margin: 0 0 20px 0;
     }
 
     .game-button {
