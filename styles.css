@@ -328,15 +328,8 @@ canvas {
     }
 
     .mobile-controls {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr 1fr;
-        grid-template-rows: 1fr 1fr 1fr;
-        gap: 0;
-        margin: 0;
-        margin-top: auto;
-        width: 90px;
-        height: 90px;
-        margin-right: 20px;
+        display: flex;
+        margin-bottom: 15%;
     }
 
     .mobile-btn {
@@ -349,53 +342,61 @@ canvas {
         -webkit-tap-highlight-color: transparent;
         position: relative;
     }
-    .mobile-btn span { display: none; }
-    .mobile-btn:active { transform: scale(0.9); }
 
-    /* Triangle buttons positioned at edges of square */
-    .up-btn {
-        border-left: 15px solid transparent !important;
-        border-right: 15px solid transparent !important;
-        border-bottom: 25px solid #1a365d !important;
-        grid-column: 2;
-        grid-row: 1;
-        justify-self: center;
-        align-self: end;
+    .mobile-btn:active {
+        transform: scale(0.9);
     }
-    .up-btn:active { border-bottom-color: #2c5282 !important; }
+
+    .mobile-btn span {
+        display: none;
+    }
+
+    .middle-row {
+        display: flex;
+        gap: 35px;
+        justify-content: center;
+    }
+
+    /* Triangle buttons */
+    .up-btn {
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-bottom: 25px solid #1a365d;
+    }
+
+    .up-btn:active {
+        border-bottom-color: #2c5282;
+    }
 
     .down-btn {
-        border-left: 15px solid transparent !important;
-        border-right: 15px solid transparent !important;
-        border-top: 25px solid #1a365d !important;
-        grid-column: 2;
-        grid-row: 3;
-        justify-self: center;
-        align-self: start;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 25px solid #1a365d;
     }
-    .down-btn:active { border-top-color: #2c5282 !important; }
+
+    .down-btn:active {
+        border-top-color: #2c5282;
+    }
 
     .left-btn {
-        border-top: 15px solid transparent !important;
-        border-bottom: 15px solid transparent !important;
-        border-right: 25px solid #1a365d !important;
-        grid-column: 1;
-        grid-row: 2;
-        justify-self: end;
-        align-self: center;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        border-right: 25px solid #1a365d;
     }
-    .left-btn:active { border-right-color: #2c5282 !important; }
+
+    .left-btn:active {
+        border-right-color: #2c5282;
+    }
 
     .right-btn {
-        border-top: 15px solid transparent !important;
-        border-bottom: 15px solid transparent !important;
-        border-left: 25px solid #1a365d !important;
-        grid-column: 3;
-        grid-row: 2;
-        justify-self: start;
-        align-self: center;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        border-left: 25px solid #1a365d;
     }
-    .right-btn:active { border-left-color: #2c5282 !important; }
+
+    .right-btn:active {
+        border-left-color: #2c5282;
+    }
 
     canvas {
         max-height: 90vh;
