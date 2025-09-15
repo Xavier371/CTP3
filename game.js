@@ -36,24 +36,39 @@ function getRandomPosition() {
 
 // Modified to handle starting positions based on game mode
 function initializePositions() {
-    // Constrain both points to spawn either in the top two rows or bottom two rows
-    const useTopRows = Math.random() < 0.5;
-    const candidateRows = useTopRows ? [0, 1] : [GRID_SIZE - 2, GRID_SIZE - 1];
-    const blueRow = candidateRows[Math.floor(Math.random() * candidateRows.length)];
-    const redRow = candidateRows[Math.floor(Math.random() * candidateRows.length)];
-
+    // Blue always starts on the left side (top-left or bottom-left corner)
+    const leftCorners = [
+        { x: 0, y: 0 },                    // top-left
+        { x: 0, y: GRID_SIZE - 1 }         // bottom-left
+    ];
+    
+    const blueCorner = leftCorners[Math.floor(Math.random() * leftCorners.length)];
+    
     if (gameMode === 'offense') {
-        // Blue starts on left, red on right
-        bluePos = { x: 0, y: blueRow };
-        redPos = { x: GRID_SIZE - 1, y: redRow };
+        // Blue is attacker, starts in left corner
+        bluePos = blueCorner;
+        // Red (defender) starts on right side, same row or one adjacent
+        const defenderRow = Math.random() < 0.5 ? blueCorner.y : 
+                           (blueCorner.y === 0 ? 1 : blueCorner.y - 1);
+        redPos = { x: GRID_SIZE - 1, y: defenderRow };
     } else if (gameMode === 'defense') {
-        // Blue starts on right, red on left
-        bluePos = { x: GRID_SIZE - 1, y: blueRow };
-        redPos = { x: 0, y: redRow };
+        // Red is attacker, starts in right corner
+        const rightCorners = [
+            { x: GRID_SIZE - 1, y: 0 },        // top-right
+            { x: GRID_SIZE - 1, y: GRID_SIZE - 1 } // bottom-right
+        ];
+        const redCorner = rightCorners[Math.floor(Math.random() * rightCorners.length)];
+        redPos = redCorner;
+        // Blue (defender) starts on left side, same row or one adjacent
+        const defenderRow = Math.random() < 0.5 ? redCorner.y : 
+                           (redCorner.y === 0 ? 1 : redCorner.y - 1);
+        bluePos = { x: 0, y: defenderRow };
     } else {
-        // Two player mode - opposite sides like offense
-        bluePos = { x: 0, y: blueRow };
-        redPos = { x: GRID_SIZE - 1, y: redRow };
+        // Two player mode - blue on left, red on right
+        bluePos = blueCorner;
+        const defenderRow = Math.random() < 0.5 ? blueCorner.y : 
+                           (blueCorner.y === 0 ? 1 : blueCorner.y - 1);
+        redPos = { x: GRID_SIZE - 1, y: defenderRow };
     }
 }
 
@@ -92,8 +107,8 @@ function removeInitialEdges() {
                 edge.y2 === 0 || edge.y2 === GRID_SIZE - 1);
     });
     
-    // Remove three random internal edges
-    for (let i = 0; i < 3; i++) {
+    // Remove four random internal edges
+    for (let i = 0; i < 4; i++) {
         if (internalEdges.length > 0) {
             const randomIndex = Math.floor(Math.random() * internalEdges.length);
             const selectedEdge = internalEdges[randomIndex];
@@ -424,18 +439,20 @@ function initializeMobileControls() {
 
 // Orientation lock removed. We render horizontally via CSS transforms on mobile.
 
-// --- REPLACE THE EXISTING updateMobileButtonColors FUNCTION IN game.js WITH THIS ---
-
 function updateMobileButtonColors() {
     if (!isMobileDevice()) return;
     
     const buttons = document.querySelectorAll('.mobile-btn');
-    const blueColor = '#4169E1'; // Define the blue color
-    
-    // Always set the button color to blue
-    buttons.forEach(btn => {
-        btn.style.backgroundColor = blueColor;
-    });
+    if (gameMode === 'twoPlayer') {
+        const color = redTurn ? '#FF4444' : '#4169E1';
+        buttons.forEach(btn => {
+            btn.style.backgroundColor = color;
+        });
+    } else {
+        buttons.forEach(btn => {
+            btn.style.backgroundColor = '#4169E1';
+        });
+    }
 }
 
 // Add this to prevent any touch zooming
