@@ -300,8 +300,8 @@ canvas {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 8px;
-        margin: 0;
+        margin-bottom: 15%;
+        gap: 20px;
     }
 
     .game-button {
@@ -327,8 +327,8 @@ canvas {
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-bottom: 15%;
-        gap: 20px;
+        margin-bottom: 0;
+        gap: 18px;
     }
 
     .mobile-btn {
@@ -341,63 +341,49 @@ canvas {
         -webkit-tap-highlight-color: transparent;
     }
 
-    .mobile-btn:active {
-        transform: scale(0.9);
-    }
-
-    .mobile-btn span {
-        display: none;
-    }
+    .mobile-btn:active { transform: scale(0.9); }
+    .mobile-btn span { display: none; }
 
     .middle-row {
         display: flex;
-        gap: 40px;
+        gap: 36px;
         justify-content: center;
     }
 
+    /* --- FIXED: make vertical and horizontal triangles exactly the same visual footprint --- */
+    :root { --triBase: 24px; --triHeight: 20px; }
+
     /* Up triangle */
     .up-btn {
-        border-left: 15px solid transparent;
-        border-right: 15px solid transparent;
-        border-bottom: 25px solid #1a365d;
+        border-left: calc(var(--triBase) / 2) solid transparent;
+        border-right: calc(var(--triBase) / 2) solid transparent;
+        border-bottom: var(--triHeight) solid #1a365d;
     }
-
-    .up-btn:active {
-        border-bottom-color: #2c5282;
-    }
+    .up-btn:active { border-bottom-color: #2c5282; }
 
     /* Down triangle */
     .down-btn {
-        border-left: 15px solid transparent;
-        border-right: 15px solid transparent;
-        border-top: 25px solid #1a365d;
+        border-left: calc(var(--triBase) / 2) solid transparent;
+        border-right: calc(var(--triBase) / 2) solid transparent;
+        border-top: var(--triHeight) solid #1a365d;
     }
-
-    .down-btn:active {
-        border-top-color: #2c5282;
-    }
+    .down-btn:active { border-top-color: #2c5282; }
 
     /* Left triangle */
     .left-btn {
-        border-top: 15px solid transparent;
-        border-bottom: 15px solid transparent;
-        border-right: 25px solid #1a365d;
+        border-top: calc(var(--triBase) / 2) solid transparent;
+        border-bottom: calc(var(--triBase) / 2) solid transparent;
+        border-right: var(--triHeight) solid #1a365d;
     }
-
-    .left-btn:active {
-        border-right-color: #2c5282;
-    }
+    .left-btn:active { border-right-color: #2c5282; }
 
     /* Right triangle */
     .right-btn {
-        border-top: 15px solid transparent;
-        border-bottom: 15px solid transparent;
-        border-left: 25px solid #1a365d;
+        border-top: calc(var(--triBase) / 2) solid transparent;
+        border-bottom: calc(var(--triBase) / 2) solid transparent;
+        border-left: var(--triHeight) solid #1a365d;
     }
-
-    .right-btn:active {
-        border-left-color: #2c5282;
-    }
+    .right-btn:active { border-left-color: #2c5282; }
 
     canvas {
         max-height: 90vh;
@@ -474,15 +460,7 @@ canvas {
         padding: 15px;
     }
 
-    .modal-content h2 {
-        font-size: 20px;
-    }
-
-    .modal-content h3 {
-        font-size: 16px;
-    }
-
-    .modal-content li {
-        font-size: 12px;
-    }
+    .modal-content h2 { font-size: 20px; }
+    .modal-content h3 { font-size: 16px; }
+    .modal-content li { font-size: 12px; }
 }
