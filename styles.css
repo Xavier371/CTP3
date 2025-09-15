@@ -332,16 +332,15 @@ canvas {
     }
 
     .mobile-controls {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr 1fr;
-        grid-template-rows: 1fr 1fr 1fr;
-        gap: 15px;
+        display: flex !important;
+        flex-direction: column;
         align-items: center;
-        justify-items: center;
+        justify-content: center;
         margin: 0;
-        width: 90px;
-        height: 90px;
         margin-top: auto;
+        width: 80px;
+        height: 80px;
+        position: relative;
     }
 
     .mobile-btn {
@@ -352,47 +351,49 @@ canvas {
         cursor: pointer;
         transition: all 0.3s ease;
         -webkit-tap-highlight-color: transparent;
-        position: relative;
+        position: absolute;
     }
     .mobile-btn span { display: none; }
     .mobile-btn:active { transform: scale(0.9); }
 
     /* Triangle buttons positioned at edges of square */
     .up-btn {
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-bottom: 18px solid #1a365d;
-        grid-column: 2;
-        grid-row: 1;
-        margin-bottom: 5px;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-bottom: 25px solid #1a365d;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
     }
     .up-btn:active { border-bottom-color: #2c5282; }
 
     .down-btn {
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-top: 18px solid #1a365d;
-        grid-column: 2;
-        grid-row: 3;
-        margin-top: 5px;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 25px solid #1a365d;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
     }
     .down-btn:active { border-top-color: #2c5282; }
 
     .left-btn {
-        border-top: 12px solid transparent;
-        border-bottom: 12px solid transparent;
-        border-right: 20px solid #1a365d;
-        grid-column: 1;
-        grid-row: 2;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        border-right: 25px solid #1a365d;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
     }
     .left-btn:active { border-right-color: #2c5282; }
 
     .right-btn {
-        border-top: 12px solid transparent;
-        border-bottom: 12px solid transparent;
-        border-left: 20px solid #1a365d;
-        grid-column: 3;
-        grid-row: 2;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        border-left: 25px solid #1a365d;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
     }
     .right-btn:active { border-left-color: #2c5282; }
 
